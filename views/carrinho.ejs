@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title><%= titulo %></title>
+</head>
+<body>
+  <h1>Meu carrinho</h1>
+  <p><a href="/">← Continuar comprando</a></p>
+
+  <% if (itens.length === 0) { %>
+    <p>Seu carrinho está vazio.</p>
+  <% } else { %>
+    <table border="1" cellpadding="8">
+      <tr>
+        <th>Produto</th><th>Preço</th><th>Qtd</th><th>Subtotal</th><th></th>
+      </tr>
+      <% itens.forEach(({ produto, qtd, subtotal }) => { %>
+        <tr>
+          <td><%= produto.nome %></td>
+          <td><%= brl(produto.preco) %></td>
+          <td>
+            <form method="POST" action="/carrinho/diminuir/<%= produto._id %>" style="display:inline">
+              <button type="submit">-</button>
+            </form>
+            <%= qtd %>
+            <form method="POST" action="/carrinho/adicionar/<%= produto._id %>" style="display:inline">
+              <button type="submit" <%= qtd >= produto.estoque ? "disabled" : "" %>>+</button>
+            </form>
+          </td>
+          <td><%= brl(subtotal) %></td>
+          <td>
+            <form method="POST" action="/carrinho/remover/<%= produto._id %>">
+              <button type="submit">Remover</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+
+    <h2>Total: <%= brl(total) %></h2>
+
+    <form method="POST" action="/carrinho/finalizar">
+      <button type="submit">Comprar pelo WhatsApp</button>
+    </form>
+  <% } %>
+</body>
+</html>

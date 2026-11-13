@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastrar Produto</title>
+</head>
+<body>
+  <h1>Cadastrar novo produto</h1>
+  <p><a href="/admin">← Voltar ao painel</a></p>
+
+  <% if (erro) { %><p style="color: red;"><%= erro %></p><% } %>
+  <% if (sucesso) { %><p style="color: green;"><%= sucesso %></p><% } %>
+
+  <form method="POST" action="/admin/produtos">
+    <label>Nome</label><br>
+    <input type="text" name="nome" required><br><br>
+
+    <label>Descrição</label><br>
+    <textarea name="descricao" rows="3" required></textarea><br><br>
+
+    <label>Preço (R$)</label><br>
+    <input type="text" name="preco" placeholder="249,90" required><br><br>
+
+    <label>Estoque</label><br>
+    <input type="number" name="estoque" min="0" value="1" required><br><br>
+
+    <label>Categoria</label><br>
+    <select name="categoria">
+      <option value="jogos">Jogos</option>
+      <option value="eletronicos">Eletrônicos</option>
+    </select><br><br>
+
+    <label>URL da imagem</label><br>
+    <input type="url" name="imagem" placeholder="https://..." required><br><br>
+
+    <label>Características (uma por linha, no formato chave: valor)</label><br>
+    <textarea name="caracteristicas" rows="4" placeholder="plataforma: PS5&#10;genero: Esporte"></textarea><br><br>
+
+    <button type="submit">Cadastrar</button>
+  </form>
+</body>
+</html>

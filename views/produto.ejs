@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title><%= titulo %></title>
+</head>
+<body>
+  <p><a href="/">← Voltar ao catálogo</a></p><a href="/carrinho">🛒 Carrinho (<%= qtdCarrinho %>)</a>
+
+  <h1><%= produto.nome %></h1>
+  <img src="<%= produto.imagem %>" alt="<%= produto.nome %>" width="300">
+  <p><%= produto.descricao %></p>
+
+  <ul>
+    <% for (const [chave, valor] of Object.entries(produto.atributos || {})) { %>
+      <li><strong><%= chave %>:</strong> <%= valor %></li>
+    <% } %>
+  </ul>
+
+  <h2><%= produto.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></h2>
+  <p>Estoque: <%= produto.estoque %></p>
+  <% if (produto.estoque > 0) { %>
+    <form method="POST" action="/carrinho/adicionar/<%= produto._id %>">
+        <button type="submit">Adicionar ao carrinho</button>
+    </form>
+  <% } else { %>
+    <em>Esgotado</em>
+  <% } %>
+</body>
+</html>
