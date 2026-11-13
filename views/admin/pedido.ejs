@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedido nº <%= pedido.id %></title>
+</head>
+<body>
+  <h1>Pedido nº <%= pedido.id %></h1>
+  <p><a href="/admin/pedidos">← Voltar para os pedidos</a></p>
+
+  <% if (msg) { %><p style="color: green;"><%= msg %></p><% } %>
+
+  <p><strong>Data:</strong>
+    <%= new Date(pedido.criado_em).toLocaleString("pt-BR", { timeZone: "America/Fortaleza" }) %></p>
+  <p><strong>Cliente:</strong> <%= pedido.cliente_nome || "não informado" %></p>
+
+  <table border="1" cellpadding="8">
+    <tr><th>Produto</th><th>Preço unit.</th><th>Qtd</th><th>Subtotal</th></tr>
+    <% pedido.itens_pedido.forEach((i) => { %>
+      <tr>
+        <td><%= i.produto_nome %></td>
+        <td><%= Number(i.preco_unitario).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
+        <td><%= i.quantidade %></td>
+        <td><%= (i.preco_unitario * i.quantidade).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
+      </tr>
+    <% }) %>
+  </table>
+
+  <h2>Total: <%= Number(pedido.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></h2>
+
+  <form method="POST" action="/admin/pedidos/<%= pedido.id %>/status">
+    <label>Status:</label>
+    <select name="status">
+      <% statusLista.forEach((s) => { %>
+        <option value="<%= s %>" <%= pedido.status === s ? "selected" : "" %>><%= s %></option>
+      <% }) %>
+    </select>
+    <button type="submit">Atualizar</button>
+  </form>
+</body>
+</html>

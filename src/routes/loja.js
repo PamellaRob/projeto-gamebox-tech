@@ -2,6 +2,7 @@ const express = require("express");
 const produtoService = require("../services/produtoService");
 const carrinhoService = require("../services/carrinhoService");
 const cache = require("../services/cacheService");
+const pedidoService = require("../services/pedidoService");
 
 const router = express.Router();
 
@@ -59,7 +60,21 @@ router.post("/carrinho/finalizar", async (req, res) => {
   const { itens, total } = await carrinhoService.detalhar(req.session);
   if (itens.length === 0) return res.redirect("/carrinho");
 
-  res.redirect(carrinhoService.montarLinkWhatsApp(itens, total));
+  let numeroPedido = null;
+  try {
+    const pedido = await pedidoService.criar({
+      itens,
+      total: Number(total.toFixed(2)),
+      clienteNome: (req.body.nome || "").trim().slice(0, 80),
+    });
+    numeroPedido = pedido.id;
+    req.session.carrinho = {}; // pedido registrado: esvazia o carrinho
+  } catch (err) {
+    // Se o registro falhar, o cliente não é prejudicado: segue para o WhatsApp
+    console.error("Falha ao salvar o pedido no Supabase:", err.message);
+  }
+
+  res.redirect(carrinhoService.montarLinkWhatsApp(itens, total, numeroPedido));
 });
 
 module.exports = router;

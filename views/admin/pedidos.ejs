@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedidos</title>
+</head>
+<body>
+  <h1>Pedidos</h1>
+  <p><a href="/admin">← Painel</a></p>
+
+  <% if (pedidos.length === 0) { %>
+    <p>Nenhum pedido registrado ainda.</p>
+  <% } else { %>
+    <table border="1" cellpadding="8">
+      <tr>
+        <th>Nº</th><th>Data</th><th>Cliente</th><th>Total</th><th>Status</th><th></th>
+      </tr>
+      <% pedidos.forEach((p) => { %>
+        <tr>
+          <td><%= p.id %></td>
+          <td><%= new Date(p.criado_em).toLocaleString("pt-BR", { timeZone: "America/Fortaleza" }) %></td>
+          <td><%= p.cliente_nome || "—" %></td>
+          <td><%= Number(p.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
+          <td><%= p.status %></td>
+          <td><a href="/admin/pedidos/<%= p.id %>">Ver detalhes</a></td>
+        </tr>
+      <% }) %>
+    </table>
+  <% } %>
+</body>
+</html>

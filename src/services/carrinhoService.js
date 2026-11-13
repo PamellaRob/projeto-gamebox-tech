@@ -68,9 +68,10 @@ function formatarReais(valor) {
     .replace(/\u00A0/g, " "); // troca o espaço "invisível" por um espaço normal
 }
 
-function montarLinkWhatsApp(itens, total) {
+function montarLinkWhatsApp(itens, total, numeroPedido) {
   const lista = itens.map((i) => `${i.qtd}x ${i.produto.nome}`).join(", ");
-  const texto = `Olá, gostaria de pedir: ${lista}. Total: ${formatarReais(total)}`;
+  let texto = `Olá, gostaria de pedir: ${lista}. Total: ${formatarReais(total)}`;
+  if (numeroPedido) texto += `. Pedido nº ${numeroPedido}`;
   return `https://wa.me/${process.env.WHATSAPP_NUMERO}?text=${encodeURIComponent(texto)}`;
 }
 

@@ -41,7 +41,9 @@
     <h2>Total: <%= brl(total) %></h2>
 
     <form method="POST" action="/carrinho/finalizar">
-      <button type="submit">Comprar pelo WhatsApp</button>
+        <label>Seu nome (opcional)</label><br>
+        <input type="text" name="nome" maxlength="80"><br><br>
+        <button type="submit">Comprar pelo WhatsApp</button>
     </form>
   <% } %>
 </body>

@@ -2,6 +2,7 @@ const express = require("express");
 const supabase = require("../config/supabase");
 const requireAdmin = require("../middleware/auth");
 const produtoService = require("../services/produtoService");
+const pedidoService = require("../services/pedidoService");
 
 const router = express.Router();
 
@@ -165,6 +166,45 @@ router.post("/produtos/:id/excluir", requireAdmin, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.redirect("/admin/produtos?msg=" + encodeURIComponent("Erro ao excluir o produto."));
+  }
+});
+
+// ----- Pedidos -----
+
+router.get("/pedidos", requireAdmin, async (req, res) => {
+  try {
+    const pedidos = await pedidoService.listar();
+    res.render("admin/pedidos", { pedidos });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erro ao carregar os pedidos.");
+  }
+});
+
+router.get("/pedidos/:id", requireAdmin, async (req, res) => {
+  try {
+    const pedido = await pedidoService.buscarPorId(req.params.id);
+    if (!pedido) return res.redirect("/admin/pedidos");
+
+    res.render("admin/pedido", {
+      pedido,
+      statusLista: pedidoService.STATUS,
+      msg: req.query.msg || null,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erro ao carregar o pedido.");
+  }
+});
+
+router.post("/pedidos/:id/status", requireAdmin, async (req, res) => {
+  try {
+    const ok = await pedidoService.atualizarStatus(req.params.id, req.body.status);
+    const msg = ok ? "Status atualizado." : "Status inválido.";
+    res.redirect(`/admin/pedidos/${req.params.id}?msg=` + encodeURIComponent(msg));
+  } catch (err) {
+    console.error(err);
+    res.redirect(`/admin/pedidos/${req.params.id}?msg=` + encodeURIComponent("Erro ao atualizar."));
   }
 });
 
