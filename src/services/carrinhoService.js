@@ -34,13 +34,26 @@ async function detalhar(session) {
   const carrinho = obter(session);
   const produtos = await produtoService.buscarPorIds(Object.keys(carrinho));
 
+  // Remove do carrinho os produtos que não existem mais (foram excluídos)
+  const idsExistentes = new Set(produtos.map((p) => String(p._id)));
+  for (const id of Object.keys(carrinho)) {
+    if (!idsExistentes.has(id)) delete carrinho[id];
+  }
+
   let totalCentavos = 0;
   const itens = [];
 
   for (const produto of produtos) {
-    const qtd = Math.min(carrinho[String(produto._id)], produto.estoque);
-    if (qtd <= 0) continue;
+    const id = String(produto._id);
+    const qtd = Math.min(carrinho[id], produto.estoque);
 
+    // Sem estoque: sai do carrinho
+    if (qtd <= 0) {
+      delete carrinho[id];
+      continue;
+    }
+
+    carrinho[id] = qtd; // ajusta se o estoque diminuiu
     const subtotalCentavos = Math.round(produto.preco * 100) * qtd;
     totalCentavos += subtotalCentavos;
     itens.push({ produto, qtd, subtotal: subtotalCentavos / 100 });

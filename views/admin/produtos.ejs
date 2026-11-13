@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Produtos</title>
+</head>
+<body>
+  <h1>Produtos cadastrados</h1>
+  <p>
+    <a href="/admin">← Painel</a> |
+    <a href="/admin/produtos/novo">+ Novo produto</a>
+  </p>
+
+  <% if (msg) { %><p style="color: green;"><%= msg %></p><% } %>
+
+  <% if (produtos.length === 0) { %>
+    <p>Nenhum produto cadastrado.</p>
+  <% } else { %>
+    <table border="1" cellpadding="8">
+      <tr>
+        <th>Imagem</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Ações</th>
+      </tr>
+      <% produtos.forEach((p) => { %>
+        <tr>
+          <td><img src="<%= p.imagem %>" alt="<%= p.nome %>" width="60"></td>
+          <td><%= p.nome %></td>
+          <td><%= p.categoria %></td>
+          <td><%= p.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
+          <td><%= p.estoque %></td>
+          <td>
+            <a href="/admin/produtos/<%= p._id %>/editar">Editar</a>
+            <form method="POST" action="/admin/produtos/<%= p._id %>/excluir"
+                  style="display:inline"
+                  onsubmit="return confirm('Excluir este produto?');">
+              <button type="submit">Excluir</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  <% } %>
+</body>
+</html>

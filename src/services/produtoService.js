@@ -56,4 +56,31 @@ async function buscarPorIds(ids) {
     .filter(Boolean);
 }
 
-module.exports = { criar, listar, listarComCache, buscarPorId, buscarPorIds };
+async function atualizar(id, dados) {
+  if (!ObjectId.isValid(id)) return false;
+  const produtos = await colecao();
+  const resultado = await produtos.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { ...dados, atualizadoEm: new Date() } }
+  );
+  await cache.limparCatalogo();
+  return resultado.matchedCount > 0;
+}
+
+async function excluir(id) {
+  if (!ObjectId.isValid(id)) return false;
+  const produtos = await colecao();
+  const resultado = await produtos.deleteOne({ _id: new ObjectId(id) });
+  await cache.limparCatalogo();
+  return resultado.deletedCount > 0;
+}
+
+module.exports = {
+  criar,
+  listar,
+  listarComCache,
+  buscarPorId,
+  buscarPorIds,
+  atualizar,
+  excluir,
+};
