@@ -1,31 +1,38 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Pedidos</title>
-</head>
-<body>
-  <h1>Pedidos</h1>
-  <p><a href="/admin">← Painel</a></p>
+<%- include('partials/topo', { titulo: "Pedidos", ativo: "pedidos" }) %>
 
+<div class="adm-toolbar">
+  <div class="adm-tabs">
+    <a class="adm-tab <%= status === '' ? 'is-on' : '' %>" href="/admin/pedidos">Todos<em><%= resumo.total %></em></a>
+    <% statusLista.forEach((s) => { %>
+      <a class="adm-tab <%= status === s ? 'is-on' : '' %>" href="/admin/pedidos?status=<%= s %>"><%= rotuloStatus(s) %><em><%= resumo.porStatus[s] || 0 %></em></a>
+    <% }) %>
+  </div>
+</div>
+
+<section class="adm-card">
   <% if (pedidos.length === 0) { %>
-    <p>Nenhum pedido registrado ainda.</p>
+    <p class="adm-empty"><%= status ? "Nenhum pedido com este status." : "Nenhum pedido registrado ainda." %></p>
   <% } else { %>
-    <table border="1" cellpadding="8">
-      <tr>
-        <th>Nº</th><th>Data</th><th>Cliente</th><th>Total</th><th>Status</th><th></th>
-      </tr>
-      <% pedidos.forEach((p) => { %>
-        <tr>
-          <td><%= p.id %></td>
-          <td><%= new Date(p.criado_em).toLocaleString("pt-BR", { timeZone: "America/Fortaleza" }) %></td>
-          <td><%= p.cliente_nome || "—" %></td>
-          <td><%= Number(p.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
-          <td><%= p.status %></td>
-          <td><a href="/admin/pedidos/<%= p.id %>">Ver detalhes</a></td>
-        </tr>
-      <% }) %>
-    </table>
+    <div class="adm-table-wrap">
+      <table class="adm-table">
+        <thead>
+          <tr><th>Nº</th><th>Data</th><th>Cliente</th><th class="num">Total</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% pedidos.forEach((p) => { %>
+            <tr>
+              <td><a href="/admin/pedidos/<%= p.id %>"><strong>#<%= p.id %></strong></a></td>
+              <td><%= dataHora(p.criado_em) %></td>
+              <td><%= p.cliente_nome || "Não informado" %></td>
+              <td class="num"><%= brl(p.total) %></td>
+              <td><span class="st st-<%= p.status %>"><%= rotuloStatus(p.status) %></span></td>
+              <td><div class="adm-actions"><a class="abtn abtn-ghost abtn-sm" href="/admin/pedidos/<%= p.id %>">Ver detalhes</a></div></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
   <% } %>
-</body>
-</html>
+</section>
+
+<%- include('partials/rodape') %>

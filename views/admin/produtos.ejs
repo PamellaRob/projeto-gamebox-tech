@@ -1,44 +1,66 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Produtos</title>
-</head>
-<body>
-  <h1>Produtos cadastrados</h1>
-  <p>
-    <a href="/admin">← Painel</a> |
-    <a href="/admin/produtos/novo">+ Novo produto</a>
-  </p>
+<%- include('partials/topo', { titulo: "Produtos", ativo: "produtos" }) %>
 
-  <% if (msg) { %><p style="color: green;"><%= msg %></p><% } %>
+<% if (locals.msg) { %><div class="adm-alert adm-alert-ok"><%= locals.msg %></div><% } %>
 
+<div class="adm-toolbar">
+  <div class="adm-tabs">
+    <a class="adm-tab <%= filtro === 'todos' ? 'is-on' : '' %>" href="/admin/produtos">Todos<em><%= contagem.todos %></em></a>
+    <a class="adm-tab <%= filtro === 'baixo' ? 'is-on' : '' %>" href="/admin/produtos?filtro=baixo">Estoque baixo<em><%= contagem.baixo %></em></a>
+    <a class="adm-tab <%= filtro === 'esgotado' ? 'is-on' : '' %>" href="/admin/produtos?filtro=esgotado">Esgotados<em><%= contagem.esgotado %></em></a>
+  </div>
+  <a class="abtn" href="/admin/produtos/novo">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+    Novo produto
+  </a>
+</div>
+
+<section class="adm-card">
   <% if (produtos.length === 0) { %>
-    <p>Nenhum produto cadastrado.</p>
+    <p class="adm-empty"><%= filtro === "todos" ? "Nenhum produto cadastrado ainda." : "Nenhum produto nesta lista." %></p>
   <% } else { %>
-    <table border="1" cellpadding="8">
-      <tr>
-        <th>Imagem</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Visualizações</th><th>Ações</th>
-      </tr>
-      <% produtos.forEach((p) => { %>
-        <tr>
-          <td><img src="<%= p.imagem %>" alt="<%= p.nome %>" width="60"></td>
-          <td><%= p.nome %></td>
-          <td><%= p.categoria %></td>
-          <td><%= p.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
-          <td><%= p.estoque %></td>
-          <td><%= visualizacoes[String(p._id)] || 0 %></td>
-          <td>
-            <a href="/admin/produtos/<%= p._id %>/editar">Editar</a>
-            <form method="POST" action="/admin/produtos/<%= p._id %>/excluir"
-                  style="display:inline"
-                  onsubmit="return confirm('Excluir este produto?');">
-              <button type="submit">Excluir</button>
-            </form>
-          </td>
-        </tr>
-      <% }) %>
-    </table>
+    <div class="adm-table-wrap">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Produto</th><th>Categoria</th><th class="num">Preço</th><th>Estoque</th><th class="num">Visualizações</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% produtos.forEach((p) => { %>
+            <tr>
+              <td>
+                <div class="adm-prod">
+                  <img class="adm-thumb" src="<%= p.imagem %>" alt="">
+                  <strong><%= p.nome %></strong>
+                </div>
+              </td>
+              <td><%= p.categoria === "jogos" ? "Jogos" : "Eletrônicos" %></td>
+              <td class="num"><%= brl(p.preco) %></td>
+              <td>
+                <% if (p.estoque <= 0) { %>
+                  <span class="st st-zero">Esgotado</span>
+                <% } else if (p.estoque <= ESTOQUE_BAIXO) { %>
+                  <span class="st st-baixo"><%= p.estoque %> un.</span>
+                <% } else { %>
+                  <span class="st st-ok"><%= p.estoque %> un.</span>
+                <% } %>
+              </td>
+              <td class="num"><%= visualizacoes[String(p._id)] || 0 %></td>
+              <td>
+                <div class="adm-actions">
+                  <a class="abtn abtn-ghost abtn-sm" href="/admin/produtos/<%= p._id %>/editar">Editar</a>
+                  <form method="POST" action="/admin/produtos/<%= p._id %>/excluir"
+                        onsubmit="return confirm('Excluir este produto?');">
+                    <button type="submit" class="abtn abtn-danger abtn-sm">Excluir</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
   <% } %>
-</body>
-</html>
+</section>
+
+<%- include('partials/rodape') %>

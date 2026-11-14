@@ -1,19 +1,178 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Painel Administrativo</title>
-</head>
-<body>
-  <h1>Painel Administrativo</h1>
-  <p>Logado como: <%= admin.email %></p>
+<%- include('partials/topo', { titulo: "Painel", ativo: "painel" }) %>
 
-  <p><a href="/admin/produtos">Gerenciar produtos</a></p>
-  <p><a href="/admin/produtos/novo">+ Cadastrar novo produto</a></p>
-  <p><a href="/" target="_blank">Ver loja</a></p>
-  <p><a href="/admin/pedidos">Pedidos</a></p>
-  <form method="POST" action="/admin/logout">
-    <button type="submit">Sair</button>
-  </form>
-</body>
-</html>
+<div class="adm-kpis">
+
+  <div class="adm-card adm-kpi">
+    <span class="adm-src">Supabase</span>
+    <span class="adm-kpi-ico ico-violet">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"></path><path d="M17 7.5c-.8-1.3-2.5-2-5-2-3 0-5 1.3-5 3.4 0 2.2 2 3 5 3.6s5 1.4 5 3.6c0 2.2-2 3.4-5 3.4-2.6 0-4.4-.8-5.3-2.3"></path></svg>
+    </span>
+    <div>
+      <span class="adm-kpi-label">Faturamento</span>
+      <strong class="adm-kpi-value"><%= brl(pedidos.faturamento) %></strong>
+      <span class="adm-kpi-sub">Pedidos não cancelados</span>
+    </div>
+  </div>
+
+  <div class="adm-card adm-kpi">
+    <span class="adm-src">Supabase</span>
+    <span class="adm-kpi-ico ico-green">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"></path><path d="M9 8h6M9 12h6"></path></svg>
+    </span>
+    <div>
+      <span class="adm-kpi-label">Pedidos</span>
+      <strong class="adm-kpi-value"><%= pedidos.total %></strong>
+      <span class="adm-kpi-sub"><%= pedidos.porStatus.novo || 0 %> novo(s) aguardando</span>
+    </div>
+  </div>
+
+  <div class="adm-card adm-kpi">
+    <span class="adm-src">MongoDB</span>
+    <span class="adm-kpi-ico ico-amber">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"></path><path d="M3 8v8l9 5 9-5V8"></path><path d="M12 13v8"></path></svg>
+    </span>
+    <div>
+      <span class="adm-kpi-label">Produtos</span>
+      <strong class="adm-kpi-value"><%= estoque.total %></strong>
+      <span class="adm-kpi-sub"><%= estoque.unidades %> unidades · <%= brl(estoque.valor) %> em estoque</span>
+    </div>
+  </div>
+
+  <div class="adm-card adm-kpi">
+    <span class="adm-src">Redis</span>
+    <span class="adm-kpi-ico ico-dark">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    </span>
+    <div>
+      <span class="adm-kpi-label">Visualizações</span>
+      <strong class="adm-kpi-value"><%= totalVisualizacoes %></strong>
+      <span class="adm-kpi-sub">Páginas de produto abertas</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="adm-cols">
+
+  <div class="adm-stack">
+
+    <section class="adm-card">
+      <div class="adm-card-head"><h2>Pedidos por status</h2></div>
+      <div class="adm-card-body">
+        <% if (pedidos.total === 0) { %>
+          <p class="adm-muted" style="margin: 0;">Nenhum pedido registrado ainda.</p>
+        <% } else { %>
+          <div class="adm-seg" role="img" aria-label="Distribuição dos pedidos por status">
+            <% statusLista.forEach((s) => { %>
+              <% const qtd = pedidos.porStatus[s] || 0; %>
+              <% if (qtd > 0) { %>
+                <span class="seg seg-<%= s %>" data-qtd="<%= qtd %>" title="<%= rotuloStatus(s) %>: <%= qtd %>"></span>
+              <% } %>
+            <% }) %>
+          </div>
+          <ul class="adm-legend">
+            <% statusLista.forEach((s) => { %>
+              <li>
+                <span><span class="dot seg-<%= s %>"></span><%= rotuloStatus(s) %></span>
+                <strong><%= pedidos.porStatus[s] || 0 %></strong>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="adm-card">
+      <div class="adm-card-head">
+        <h2>Pedidos recentes</h2>
+        <a class="adm-link" href="/admin/pedidos">Ver todos</a>
+      </div>
+      <div class="adm-card-body" style="padding-left: 0; padding-right: 0; padding-bottom: 0;">
+        <% if (pedidos.recentes.length === 0) { %>
+          <p class="adm-empty">Os pedidos feitos na loja vão aparecer aqui.</p>
+        <% } else { %>
+          <div class="adm-table-wrap">
+            <table class="adm-table">
+              <thead>
+                <tr><th>Nº</th><th>Cliente</th><th>Data</th><th class="num">Total</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <% pedidos.recentes.forEach((p) => { %>
+                  <tr>
+                    <td><a href="/admin/pedidos/<%= p.id %>"><strong>#<%= p.id %></strong></a></td>
+                    <td><%= p.cliente_nome || "Não informado" %></td>
+                    <td><%= dataHora(p.criado_em) %></td>
+                    <td class="num"><%= brl(p.total) %></td>
+                    <td><span class="st st-<%= p.status %>"><%= rotuloStatus(p.status) %></span></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="adm-stack">
+
+    <section class="adm-card">
+      <div class="adm-card-head"><h2>Mais vistos</h2><span class="adm-src" style="position: static;">Redis</span></div>
+      <% if (maisVistos.length === 0) { %>
+        <p class="adm-empty">As visualizações dos produtos vão aparecer aqui.</p>
+      <% } else { %>
+        <ul class="adm-list">
+          <% maisVistos.forEach((m, i) => { %>
+            <li>
+              <span class="adm-rank"><%= i + 1 %></span>
+              <img class="adm-thumb" src="<%= m.imagem %>" alt="">
+              <div class="grow">
+                <strong title="<%= m.nome %>"><%= m.nome %></strong>
+                <small><%= m.visualizacoes %> <%= m.visualizacoes === 1 ? "visualização" : "visualizações" %></small>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </section>
+
+    <section class="adm-card">
+      <div class="adm-card-head">
+        <h2>Atenção ao estoque</h2>
+        <a class="adm-link" href="/admin/produtos?filtro=baixo">Ver produtos</a>
+      </div>
+      <% if (estoque.atencao.length === 0) { %>
+        <p class="adm-empty">Nenhum produto com estoque baixo.</p>
+      <% } else { %>
+        <ul class="adm-list">
+          <% estoque.atencao.forEach((p) => { %>
+            <li>
+              <img class="adm-thumb" src="<%= p.imagem %>" alt="">
+              <div class="grow">
+                <strong title="<%= p.nome %>"><%= p.nome %></strong>
+                <a href="/admin/produtos/<%= p._id %>/editar"><small>Editar produto</small></a>
+              </div>
+              <% if (p.estoque <= 0) { %>
+                <span class="st st-zero">Esgotado</span>
+              <% } else { %>
+                <span class="st st-baixo"><%= p.estoque %> un.</span>
+              <% } %>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </section>
+
+  </div>
+
+</div>
+
+<script>
+  // Cada trecho da barra de status ocupa um espaço proporcional à quantidade de pedidos
+  document.querySelectorAll(".seg[data-qtd]").forEach(function (el) {
+    el.style.flex = el.dataset.qtd;
+  });
+</script>
+
+<%- include('partials/rodape') %>

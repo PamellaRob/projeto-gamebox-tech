@@ -1,41 +1,70 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Pedido nº <%= pedido.id %></title>
-</head>
-<body>
-  <h1>Pedido nº <%= pedido.id %></h1>
-  <p><a href="/admin/pedidos">← Voltar para os pedidos</a></p>
+<%- include('partials/topo', { titulo: "Pedido #" + pedido.id, ativo: "pedidos" }) %>
 
-  <% if (msg) { %><p style="color: green;"><%= msg %></p><% } %>
+<p><a href="/admin/pedidos">← Voltar para os pedidos</a></p>
 
-  <p><strong>Data:</strong>
-    <%= new Date(pedido.criado_em).toLocaleString("pt-BR", { timeZone: "America/Fortaleza" }) %></p>
-  <p><strong>Cliente:</strong> <%= pedido.cliente_nome || "não informado" %></p>
+<% if (locals.msg) { %><div class="adm-alert adm-alert-ok"><%= locals.msg %></div><% } %>
 
-  <table border="1" cellpadding="8">
-    <tr><th>Produto</th><th>Preço unit.</th><th>Qtd</th><th>Subtotal</th></tr>
-    <% pedido.itens_pedido.forEach((i) => { %>
-      <tr>
-        <td><%= i.produto_nome %></td>
-        <td><%= Number(i.preco_unitario).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
-        <td><%= i.quantidade %></td>
-        <td><%= (i.preco_unitario * i.quantidade).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
-      </tr>
-    <% }) %>
-  </table>
+<div class="adm-cols">
 
-  <h2>Total: <%= Number(pedido.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></h2>
+  <section class="adm-card">
+    <div class="adm-card-head"><h2>Itens do pedido</h2></div>
+    <div class="adm-card-body" style="padding-left: 0; padding-right: 0; padding-bottom: 0;">
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead>
+            <tr><th>Produto</th><th class="num">Preço unit.</th><th class="num">Qtd</th><th class="num">Subtotal</th></tr>
+          </thead>
+          <tbody>
+            <% pedido.itens_pedido.forEach((i) => { %>
+              <tr>
+                <td><strong><%= i.produto_nome %></strong></td>
+                <td class="num"><%= brl(i.preco_unitario) %></td>
+                <td class="num"><%= i.quantidade %></td>
+                <td class="num"><%= brl(Number(i.preco_unitario) * i.quantidade) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <div class="adm-total-line">
+        <span class="adm-muted">Total do pedido</span>
+        <strong><%= brl(pedido.total) %></strong>
+      </div>
+    </div>
+  </section>
 
-  <form method="POST" action="/admin/pedidos/<%= pedido.id %>/status">
-    <label>Status:</label>
-    <select name="status">
-      <% statusLista.forEach((s) => { %>
-        <option value="<%= s %>" <%= pedido.status === s ? "selected" : "" %>><%= s %></option>
-      <% }) %>
-    </select>
-    <button type="submit">Atualizar</button>
-  </form>
-</body>
-</html>
+  <div class="adm-stack">
+
+    <section class="adm-card">
+      <div class="adm-card-head"><h2>Detalhes</h2></div>
+      <div class="adm-card-body">
+        <dl class="adm-dl">
+          <div><dt>Status atual</dt><dd><span class="st st-<%= pedido.status %>"><%= rotuloStatus(pedido.status) %></span></dd></div>
+          <div><dt>Cliente</dt><dd><%= pedido.cliente_nome || "Não informado" %></dd></div>
+          <div><dt>Data</dt><dd><%= dataHora(pedido.criado_em) %></dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="adm-card">
+      <div class="adm-card-head"><h2>Atualizar status</h2></div>
+      <div class="adm-card-body">
+        <form method="POST" action="/admin/pedidos/<%= pedido.id %>/status">
+          <div class="adm-field">
+            <label for="status">Novo status</label>
+            <select id="status" name="status">
+              <% statusLista.forEach((s) => { %>
+                <option value="<%= s %>" <%= pedido.status === s ? "selected" : "" %>><%= rotuloStatus(s) %></option>
+              <% }) %>
+            </select>
+          </div>
+          <button type="submit" class="abtn abtn-block">Salvar status</button>
+        </form>
+      </div>
+    </section>
+
+  </div>
+
+</div>
+
+<%- include('partials/rodape') %>

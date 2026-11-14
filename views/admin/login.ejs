@@ -2,21 +2,90 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Login do Administrador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · Admin GameBox Tech</title>
+  <link rel="icon" type="image/png" href="/img/favicon-64.png">
+  <link rel="apple-touch-icon" href="/img/favicon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
 </head>
-<body>
-  <h1>Área do Administrador</h1>
+<body class="adm">
+  <div class="login">
+    <div class="login-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
-  <% if (erro) { %>
-    <p style="color: red;"><%= erro %></p>
-  <% } %>
+    <div class="login-box">
 
-  <form method="POST" action="/admin/login">
-    <label>E-mail</label><br>
-    <input type="email" name="email" required><br><br>
-    <label>Senha</label><br>
-    <input type="password" name="senha" required><br><br>
-    <button type="submit">Entrar</button>
-  </form>
+      <div class="login-art" aria-hidden="true">
+        <svg viewBox="0 0 420 340" width="100%" height="100%" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- chão -->
+          <path d="M30 300h360" stroke="#2a1f5c" stroke-width="4"/>
+          <!-- mesa -->
+          <path d="M190 232h190" stroke="#2a1f5c" stroke-width="5"/>
+          <path d="M210 232v68M360 232v68" stroke="#2a1f5c" stroke-width="5"/>
+          <!-- notebook -->
+          <path d="M262 232l-10-92a6 6 0 0 1 6-7h92a6 6 0 0 1 6 7l-6 92z" fill="#fff" stroke="#2a1f5c" stroke-width="4"/>
+          <path d="M240 232h140" stroke="#2a1f5c" stroke-width="5"/>
+          <!-- escudo com cadeado na tela -->
+          <path d="M318 152l24 9v18c0 16-10 27-24 33-14-6-24-17-24-33v-18z" fill="#6d4ad0" stroke="#2a1f5c" stroke-width="4"/>
+          <rect x="308" y="177" width="20" height="15" rx="3" fill="#fff" stroke="#2a1f5c" stroke-width="3"/>
+          <path d="M312 177v-5a6 6 0 0 1 12 0v5" stroke="#fff" stroke-width="3"/>
+          <!-- pessoa: pernas -->
+          <path d="M150 232l-8 68M178 232l14 68" stroke="#2a1f5c" stroke-width="5"/>
+          <path d="M132 300h22M184 300h24" stroke="#2a1f5c" stroke-width="6"/>
+          <!-- tronco -->
+          <path d="M136 232c-4-34-2-70 6-92 6-14 28-16 38-2 10 14 12 50 8 94z" fill="#1fa971" stroke="#2a1f5c" stroke-width="4"/>
+          <!-- crachá -->
+          <rect x="150" y="170" width="18" height="24" rx="3" fill="#fff" stroke="#2a1f5c" stroke-width="3"/>
+          <path d="M155 178h8M155 184h8" stroke="#6d4ad0" stroke-width="3"/>
+          <!-- braço até o notebook -->
+          <path d="M180 156c22 8 38 22 62 32" stroke="#2a1f5c" stroke-width="12"/>
+          <path d="M180 156c22 8 38 22 62 32" stroke="#1fa971" stroke-width="6"/>
+          <circle cx="248" cy="191" r="7" fill="#f6c9a8" stroke="#2a1f5c" stroke-width="3"/>
+          <!-- cabeça -->
+          <circle cx="160" cy="108" r="22" fill="#f6c9a8" stroke="#2a1f5c" stroke-width="4"/>
+          <path d="M138 104c2-20 28-30 44-14 2 2 2 6 0 8-10-6-26-4-34 8z" fill="#2a1f5c"/>
+          <!-- headset -->
+          <path d="M140 108c0-24 40-30 44-2" stroke="#6d4ad0" stroke-width="4"/>
+          <rect x="134" y="106" width="9" height="16" rx="4" fill="#6d4ad0" stroke="#2a1f5c" stroke-width="3"/>
+          <!-- pescoço -->
+          <path d="M158 128v10" stroke="#2a1f5c" stroke-width="4"/>
+          <!-- chave flutuando -->
+          <circle cx="78" cy="96" r="14" fill="#fff" stroke="#2a1f5c" stroke-width="4"/>
+          <circle cx="78" cy="96" r="4" fill="#6d4ad0"/>
+          <path d="M90 104l34 30M110 120l-8 8M120 130l-8 8" stroke="#2a1f5c" stroke-width="4"/>
+          <!-- detalhes -->
+          <circle cx="330" cy="82" r="6" fill="#1fa971"/>
+          <circle cx="370" cy="110" r="4" fill="#6d4ad0"/>
+          <path d="M60 170h24M72 158v24" stroke="#6d4ad0" stroke-width="4"/>
+        </svg>
+      </div>
+
+      <form class="login-panel" method="POST" action="/admin/login">
+        <div class="login-brand">
+          <img src="/img/logo-mark-02.png" alt="" width="44" height="44">
+          <span>GameBox <b>Tech</b></span>
+        </div>
+        <h1>Entrar</h1>
+        <p class="login-sub">Sou administrador</p>
+
+        <% if (locals.erro) { %><div class="adm-alert adm-alert-erro"><%= locals.erro %></div><% } %>
+
+        <div class="adm-field">
+          <label for="email">E-mail</label>
+          <input id="email" type="email" name="email" placeholder="voce@exemplo.com" required autocomplete="username" autofocus>
+        </div>
+        <div class="adm-field">
+          <label for="senha">Senha</label>
+          <input id="senha" type="password" name="senha" required autocomplete="current-password">
+        </div>
+
+        <button class="login-btn" type="submit">Entrar</button>
+        <a class="login-back" href="/">Voltar para a loja</a>
+      </form>
+
+    </div>
+  </div>
 </body>
 </html>

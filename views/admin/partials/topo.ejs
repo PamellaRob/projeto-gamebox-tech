@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= titulo %> · Admin GameBox Tech</title>
+  <link rel="icon" type="image/png" href="/img/favicon-64.png">
+  <link rel="apple-touch-icon" href="/img/favicon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="adm">
+<div class="adm-shell">
+
+  <aside class="adm-side">
+    <a class="adm-brand" href="/admin">
+      <img src="/img/logo-mark-02.png" alt="" width="40" height="40">
+      <span>GameBox <b>Tech</b><small>Administração</small></span>
+    </a>
+
+    <nav class="adm-nav" aria-label="Menu do administrador">
+      <a href="/admin" class="<%= ativo === 'painel' ? 'is-active' : '' %>">
+        <svg class="adm-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+        Painel
+      </a>
+      <a href="/admin/produtos" class="<%= ativo === 'produtos' ? 'is-active' : '' %>">
+        <svg class="adm-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"></path><path d="M3 8v8l9 5 9-5V8"></path><path d="M12 13v8"></path></svg>
+        Produtos
+      </a>
+      <a href="/admin/pedidos" class="<%= ativo === 'pedidos' ? 'is-active' : '' %>">
+        <svg class="adm-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"></path><path d="M9 8h6M9 12h6"></path></svg>
+        Pedidos
+      </a>
+    </nav>
+
+    <div class="adm-side-foot">
+      <a class="adm-nav-link" href="/" target="_blank" rel="noopener">
+        <svg class="adm-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M10 14L20 4"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>
+        Ver loja
+      </a>
+      <form method="POST" action="/admin/logout">
+        <button class="adm-nav-link" type="submit">
+          <svg class="adm-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
+          Sair
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="adm-main">
+    <header class="adm-top">
+      <h1 class="adm-page-title"><%= titulo %></h1>
+      <div class="adm-user">
+        <span class="adm-user-mail"><%= locals.admin ? locals.admin.email : "" %></span>
+        <span class="adm-avatar"><%= (locals.admin && locals.admin.email ? locals.admin.email[0] : "A").toUpperCase() %></span>
+      </div>
+    </header>
+
+    <main class="adm-content">
