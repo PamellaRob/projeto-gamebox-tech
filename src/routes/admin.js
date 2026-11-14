@@ -32,7 +32,7 @@ function lerFormulario(body) {
       .split("\n")
       .map((linha) => linha.split(":"))
       .filter((partes) => partes.length >= 2 && partes[0].trim())
-      .map((partes) => [partes[0].trim(), partes.slice(1).join(":").trim()])
+      .map((partes) => [partes[0].trim().toLowerCase(), partes.slice(1).join(":").trim()])
   );
 
   return { produto: { nome, descricao, preco, imagem, categoria, estoque, atributos } };

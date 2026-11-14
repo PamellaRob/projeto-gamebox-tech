@@ -75,6 +75,63 @@ async function excluir(id) {
   return resultado.deletedCount > 0;
 }
 
+const CATEGORIAS_VALIDAS = ["jogos", "eletronicos"];
+
+const ORDENACOES = {
+  recentes: { criadoEm: -1 },
+  menor: { preco: 1 },
+  maior: { preco: -1 },
+  nome: { nome: 1 },
+};
+
+// Protege a busca: trata o texto digitado como texto comum, não como regex
+function escaparRegex(texto) {
+  return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function listarFiltrado({ q, categoria, plataforma, ordem }) {
+  const filtro = {};
+
+  if (q) {
+    const padrao = escaparRegex(q);
+    filtro.$or = [
+      { nome: { $regex: padrao, $options: "i" } },
+      { descricao: { $regex: padrao, $options: "i" } },
+    ];
+  }
+  if (CATEGORIAS_VALIDAS.includes(categoria)) {
+    filtro.categoria = categoria;
+  }
+  if (plataforma) {
+    filtro["atributos.plataforma"] = plataforma;
+  }
+
+  const produtos = await colecao();
+  return produtos
+    .find(filtro)
+    .sort(ORDENACOES[ordem] || ORDENACOES.recentes)
+    .toArray();
+}
+
+// Valores de plataforma que existem hoje nos produtos
+async function listarPlataformas() {
+  const produtos = await colecao();
+  const valores = await produtos.distinct("atributos.plataforma");
+  return valores.filter((v) => typeof v === "string" && v).sort();
+}
+
+// Índices aceleram as consultas (criados uma vez, na inicialização)
+async function garantirIndices() {
+  try {
+    const produtos = await colecao();
+    await produtos.createIndex({ categoria: 1 });
+    await produtos.createIndex({ criadoEm: -1 });
+    await produtos.createIndex({ "atributos.plataforma": 1 });
+  } catch (err) {
+    console.error("Não foi possível criar os índices:", err.message);
+  }
+}
+
 module.exports = {
   criar,
   listar,
@@ -83,4 +140,8 @@ module.exports = {
   buscarPorIds,
   atualizar,
   excluir,
+  listarFiltrado,
+  listarPlataformas,
+  garantirIndices,
+  CATEGORIAS_VALIDAS,
 };

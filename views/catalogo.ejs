@@ -8,7 +8,36 @@
   <h1><%= titulo %></h1>
   <p><a href="/carrinho">🛒 Carrinho (<%= qtdCarrinho %>)</a></p>
 
-  <% if (vistos.length > 0) { %>
+  <form method="GET" action="/" style="margin: 16px 0;">
+    <input type="text" name="q" placeholder="Buscar produto..." value="<%= filtros.q %>">
+
+    <select name="categoria">
+      <option value="">Todas as categorias</option>
+      <option value="jogos" <%= filtros.categoria === "jogos" ? "selected" : "" %>>Jogos</option>
+      <option value="eletronicos" <%= filtros.categoria === "eletronicos" ? "selected" : "" %>>Eletrônicos</option>
+    </select>
+
+    <% if (plataformas.length > 0) { %>
+      <select name="plataforma">
+        <option value="">Todas as plataformas</option>
+        <% plataformas.forEach((pl) => { %>
+          <option value="<%= pl %>" <%= filtros.plataforma === pl ? "selected" : "" %>><%= pl %></option>
+        <% }) %>
+      </select>
+    <% } %>
+
+    <select name="ordem">
+      <option value="recentes" <%= filtros.ordem === "recentes" ? "selected" : "" %>>Mais recentes</option>
+      <option value="menor" <%= filtros.ordem === "menor" ? "selected" : "" %>>Menor preço</option>
+      <option value="maior" <%= filtros.ordem === "maior" ? "selected" : "" %>>Maior preço</option>
+      <option value="nome" <%= filtros.ordem === "nome" ? "selected" : "" %>>Nome (A-Z)</option>
+    </select>
+
+    <button type="submit">Filtrar</button>
+    <% if (temFiltro) { %><a href="/">Limpar filtros</a><% } %>
+  </form>
+
+  <% if (vistos.length > 0 && !temFiltro) { %>
     <h2>Vistos recentemente</h2>
     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
       <% vistos.forEach((v) => { %>
@@ -21,8 +50,12 @@
     <hr>
   <% } %>
 
+  <% if (temFiltro) { %>
+    <p><strong><%= produtos.length %></strong> produto(s) encontrado(s).</p>
+  <% } %>
+
   <% if (produtos.length === 0) { %>
-    <p>Nenhum produto cadastrado ainda.</p>
+    <p><%= temFiltro ? "Nenhum produto encontrado com esses filtros." : "Nenhum produto cadastrado ainda." %></p>
   <% } %>
 
   <% produtos.forEach((p) => { %>
@@ -31,9 +64,10 @@
       <h3><a href="/produto/<%= p._id %>"><%= p.nome %></a></h3>
       <p><%= p.descricao %></p>
       <strong><%= p.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></strong>
+
       <% if (p.estoque > 0) { %>
         <form method="POST" action="/carrinho/adicionar/<%= p._id %>">
-            <button type="submit">Adicionar ao carrinho</button>
+          <button type="submit">Adicionar ao carrinho</button>
         </form>
       <% } else { %>
         <em>Esgotado</em>

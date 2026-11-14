@@ -9,11 +9,38 @@ const router = express.Router();
 // ----- Catálogo e produto -----
 
 router.get("/", async (req, res) => {
-  const produtos = await produtoService.listarComCache();
+  // Lê os filtros da URL, garantindo que sejam textos simples
+  const texto = (valor) => (typeof valor === "string" ? valor.trim() : "");
+  const filtros = {
+    q: texto(req.query.q).slice(0, 60),
+    categoria: texto(req.query.categoria),
+    plataforma: texto(req.query.plataforma),
+    ordem: texto(req.query.ordem) || "recentes",
+  };
+
+  const temFiltro =
+    filtros.q || filtros.categoria || filtros.plataforma || filtros.ordem !== "recentes";
+
+  let produtos;
+  if (temFiltro) {
+    console.log("Busca filtrada vinda do MongoDB");
+    produtos = await produtoService.listarFiltrado(filtros);
+  } else {
+    produtos = await produtoService.listarComCache(); // catálogo completo usa o Redis
+  }
+
+  const plataformas = await produtoService.listarPlataformas();
   const idsVistos = await cache.listarVistos(req.sessionID);
   const vistos = await produtoService.buscarPorIds(idsVistos);
 
-  res.render("catalogo", { titulo: "GameBox Tech", produtos, vistos });
+  res.render("catalogo", {
+    titulo: "GameBox Tech",
+    produtos,
+    vistos,
+    filtros,
+    plataformas,
+    temFiltro: Boolean(temFiltro),
+  });
 });
 
 router.get("/produto/:id", async (req, res) => {
