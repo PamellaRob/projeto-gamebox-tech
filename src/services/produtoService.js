@@ -119,7 +119,11 @@ function montarFiltro({ q, categoria, plataforma }) {
     filtro.categoria = categoria;
   }
   if (plataforma) {
-    filtro["atributos.plataforma"] = plataforma;
+    // Aceita "plataforma" e "plataformas", e vários nomes no mesmo texto
+    const padrao = { $regex: escaparRegex(plataforma), $options: "i" };
+    filtro.$and = [
+      { $or: [{ "atributos.plataforma": padrao }, { "atributos.plataformas": padrao }] },
+    ];
   }
   return filtro;
 }
@@ -146,8 +150,22 @@ async function listarFiltrado(filtros, { pagina = 1, porPagina = 12 } = {}) {
 // Valores de plataforma que existem hoje nos produtos
 async function listarPlataformas() {
   const produtos = await colecao();
-  const valores = await produtos.distinct("atributos.plataforma");
-  return valores.filter((v) => typeof v === "string" && v).sort();
+  const valores = [
+    ...(await produtos.distinct("atributos.plataforma")),
+    ...(await produtos.distinct("atributos.plataformas")),
+  ];
+    // "PlayStation 4, Xbox One e PC" vira três opções separadas, sem repetir
+  const unicas = new Map();
+  valores
+    .filter((v) => typeof v === "string")
+    .flatMap((v) => v.split(/\s*(?:,|;|\/|\||\se\s)\s*/))
+    .map((nome) => nome.trim())
+    .filter(Boolean)
+    .forEach((nome) => {
+      const chave = nome.toLowerCase();
+      if (!unicas.has(chave)) unicas.set(chave, nome);
+    });
+  return [...unicas.values()].sort((x, y) => x.localeCompare(y, "pt-BR"));
 }
 
 // Índices aceleram as consultas (criados uma vez, na inicialização)
