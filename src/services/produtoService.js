@@ -2,10 +2,23 @@ const { ObjectId } = require("mongodb");
 const { getDb } = require("../config/mongo");
 const cache = require("./cacheService");
 
+const VITRINE_TAMANHO = 8; // quantos produtos aparecem na home
+const CATEGORIAS_VALIDAS = ["jogos", "eletronicos"];
+
+// O segundo campo (_id) desempata e mantém a ordem estável entre as páginas
+const ORDENACOES = {
+  recentes: { criadoEm: -1, _id: -1 },
+  menor: { preco: 1, _id: 1 },
+  maior: { preco: -1, _id: 1 },
+  nome: { nome: 1, _id: 1 },
+};
+
 async function colecao() {
   const db = await getDb();
   return db.collection("produtos");
 }
+
+// ----- Cadastro, edição e exclusão -----
 
 async function criar(produto) {
   const produtos = await colecao();
@@ -13,47 +26,8 @@ async function criar(produto) {
     ...produto,
     criadoEm: new Date(),
   });
-  await cache.limparCatalogo(); // o catálogo mudou, então o cache velho sai
+  await cache.limparCatalogo(); // a vitrine mudou, então o cache velho sai
   return resultado.insertedId;
-}
-
-async function listar() {
-  const produtos = await colecao();
-  return produtos.find().sort({ criadoEm: -1 }).toArray();
-}
-
-async function listarComCache() {
-  const emCache = await cache.lerCatalogo();
-  if (emCache) {
-    console.log("Catálogo vindo do Redis (cache HIT)");
-    return emCache;
-  }
-
-  console.log("Catálogo vindo do MongoDB (cache MISS)");
-  const produtos = await listar();
-  await cache.salvarCatalogo(produtos);
-  return produtos;
-}
-
-async function buscarPorId(id) {
-  if (!ObjectId.isValid(id)) return null;
-  const produtos = await colecao();
-  return produtos.findOne({ _id: new ObjectId(id) });
-}
-
-async function buscarPorIds(ids) {
-  const validos = ids.filter((id) => ObjectId.isValid(id));
-  if (validos.length === 0) return [];
-
-  const produtos = await colecao();
-  const docs = await produtos
-    .find({ _id: { $in: validos.map((id) => new ObjectId(id)) } })
-    .toArray();
-
-  // O Mongo não garante a ordem, então reordenamos pela ordem da lista do Redis
-  return validos
-    .map((id) => docs.find((d) => String(d._id) === id))
-    .filter(Boolean);
 }
 
 async function atualizar(id, dados) {
@@ -76,21 +50,62 @@ async function excluir(id) {
   return resultado.deletedCount > 0;
 }
 
-const CATEGORIAS_VALIDAS = ["jogos", "eletronicos"];
+// ----- Leituras -----
 
-const ORDENACOES = {
-  recentes: { criadoEm: -1 },
-  menor: { preco: 1 },
-  maior: { preco: -1 },
-  nome: { nome: 1 },
-};
+// Lista completa (usada pelo painel do admin, sem cache)
+async function listar() {
+  const produtos = await colecao();
+  return produtos.find().sort({ criadoEm: -1 }).toArray();
+}
+
+// Vitrine da home: só os lançamentos mais recentes, guardados no Redis
+async function listarVitrine() {
+  const emCache = await cache.lerCatalogo();
+  if (emCache) {
+    console.log("Vitrine da home servida pelo Redis (cache HIT)");
+    return emCache.slice(0, VITRINE_TAMANHO);
+  }
+
+  console.log("Vitrine da home lida do MongoDB (cache MISS)");
+  const produtos = await colecao();
+  const vitrine = await produtos
+    .find()
+    .sort({ criadoEm: -1 })
+    .limit(VITRINE_TAMANHO)
+    .toArray();
+  await cache.salvarCatalogo(vitrine);
+  return vitrine;
+}
+
+async function buscarPorId(id) {
+  if (!ObjectId.isValid(id)) return null;
+  const produtos = await colecao();
+  return produtos.findOne({ _id: new ObjectId(id) });
+}
+
+async function buscarPorIds(ids) {
+  const validos = ids.filter((id) => ObjectId.isValid(id));
+  if (validos.length === 0) return [];
+
+  const produtos = await colecao();
+  const docs = await produtos
+    .find({ _id: { $in: validos.map((id) => new ObjectId(id)) } })
+    .toArray();
+
+  // O Mongo não garante a ordem, então reordenamos pela ordem da lista recebida
+  return validos
+    .map((id) => docs.find((d) => String(d._id) === id))
+    .filter(Boolean);
+}
+
+// ----- Busca, filtros e paginação -----
 
 // Protege a busca: trata o texto digitado como texto comum, não como regex
 function escaparRegex(texto) {
   return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-async function listarFiltrado({ q, categoria, plataforma, ordem }) {
+function montarFiltro({ q, categoria, plataforma }) {
   const filtro = {};
 
   if (q) {
@@ -106,12 +121,26 @@ async function listarFiltrado({ q, categoria, plataforma, ordem }) {
   if (plataforma) {
     filtro["atributos.plataforma"] = plataforma;
   }
+  return filtro;
+}
 
+// Devolve uma página de resultados e os totais para montar a paginação
+async function listarFiltrado(filtros, { pagina = 1, porPagina = 12 } = {}) {
+  const filtro = montarFiltro(filtros);
   const produtos = await colecao();
-  return produtos
+
+  const total = await produtos.countDocuments(filtro);
+  const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
+  const paginaAtual = Math.min(Math.max(1, pagina), totalPaginas);
+
+  const lista = await produtos
     .find(filtro)
-    .sort(ORDENACOES[ordem] || ORDENACOES.recentes)
+    .sort(ORDENACOES[filtros.ordem] || ORDENACOES.recentes)
+    .skip((paginaAtual - 1) * porPagina)
+    .limit(porPagina)
     .toArray();
+
+  return { produtos: lista, total, pagina: paginaAtual, totalPaginas };
 }
 
 // Valores de plataforma que existem hoje nos produtos
@@ -135,12 +164,12 @@ async function garantirIndices() {
 
 module.exports = {
   criar,
-  listar,
-  listarComCache,
-  buscarPorId,
-  buscarPorIds,
   atualizar,
   excluir,
+  listar,
+  listarVitrine,
+  buscarPorId,
+  buscarPorIds,
   listarFiltrado,
   listarPlataformas,
   garantirIndices,

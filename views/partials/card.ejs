@@ -1,0 +1,24 @@
+<% const dias = p.criadoEm ? (Date.now() - new Date(p.criadoEm).getTime()) / 86400000 : 999; %>
+<% const selo = p.estoque <= 0 ? ["flag flag-out", "Esgotado"]
+              : p.estoque <= 3 ? ["flag flag-warn", "Últimas unidades"]
+              : dias <= 7 ? ["flag", "Novo"] : null; %>
+<article class="card">
+  <a class="card-img" href="/produto/<%= p._id %>">
+    <% if (selo) { %><span class="<%= selo[0] %>"><%= selo[1] %></span><% } %>
+    <img src="<%= p.imagem %>" alt="<%= p.nome %>" loading="lazy">
+  </a>
+  <div class="card-body">
+    <span class="tag"><%= p.categoria === "jogos" ? "Jogos" : "Eletrônicos" %></span>
+    <h3><a href="/produto/<%= p._id %>" title="<%= p.nome %>"><%= p.nome %></a></h3>
+    <p class="desc"><%= p.descricao %></p>
+    <p class="price"><%= p.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></p>
+
+    <% if (p.estoque > 0) { %>
+      <form method="POST" action="/carrinho/adicionar/<%= p._id %>">
+        <button type="submit" class="btn btn-block">Adicionar ao carrinho</button>
+      </form>
+    <% } else { %>
+      <button type="button" class="btn btn-block" disabled>Esgotado</button>
+    <% } %>
+  </div>
+</article>

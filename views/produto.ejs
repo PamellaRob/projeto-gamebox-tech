@@ -1,30 +1,36 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title><%= titulo %></title>
-</head>
-<body>
-  <p><a href="/">← Voltar ao catálogo</a></p><a href="/carrinho">🛒 Carrinho (<%= qtdCarrinho %>)</a>
+<%- include('partials/topo') %>
 
-  <h1><%= produto.nome %></h1>
-  <img src="<%= produto.imagem %>" alt="<%= produto.nome %>" width="300">
-  <p><%= produto.descricao %></p>
+<a class="back" href="/produtos">← Voltar aos produtos</a>
 
-  <ul>
-    <% for (const [chave, valor] of Object.entries(produto.atributos || {})) { %>
-      <li><strong><%= chave %>:</strong> <%= valor %></li>
+<div class="product">
+  <div class="product-img">
+    <img src="<%= produto.imagem %>" alt="<%= produto.nome %>">
+  </div>
+
+  <div>
+    <span class="tag"><%= produto.categoria === "jogos" ? "Jogos" : "Eletrônicos" %></span>
+    <h1><%= produto.nome %></h1>
+    <p class="price-lg"><%= produto.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></p>
+    <p><%= produto.descricao %></p>
+
+    <% const atributos = Object.entries(produto.atributos || {}); %>
+    <% if (atributos.length > 0) { %>
+      <table class="specs">
+        <% atributos.forEach(([chave, valor]) => { %>
+          <tr><th><%= chave %></th><td><%= valor %></td></tr>
+        <% }) %>
+      </table>
     <% } %>
-  </ul>
 
-  <h2><%= produto.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></h2>
-  <p>Estoque: <%= produto.estoque %></p>
-  <% if (produto.estoque > 0) { %>
-    <form method="POST" action="/carrinho/adicionar/<%= produto._id %>">
-        <button type="submit">Adicionar ao carrinho</button>
-    </form>
-  <% } else { %>
-    <em>Esgotado</em>
-  <% } %>
-</body>
-</html>
+    <% if (produto.estoque > 0) { %>
+      <p class="stock">Em estoque: <%= produto.estoque %> unidade(s)</p>
+      <form method="POST" action="/carrinho/adicionar/<%= produto._id %>">
+        <button type="submit" class="btn">Adicionar ao carrinho</button>
+      </form>
+    <% } else { %>
+      <p class="soldout">Esgotado</p>
+    <% } %>
+  </div>
+</div>
+
+<%- include('partials/rodape') %>

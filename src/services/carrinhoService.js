@@ -69,9 +69,31 @@ function formatarReais(valor) {
 }
 
 function montarLinkWhatsApp(itens, total, numeroPedido) {
-  const lista = itens.map((i) => `${i.qtd}x ${i.produto.nome}`).join(", ");
-  let texto = `Olá, gostaria de pedir: ${lista}. Total: ${formatarReais(total)}`;
-  if (numeroPedido) texto += `. Pedido nº ${numeroPedido}`;
+  const lista = itens.map(({ qtd, produto }) => {
+    const detalhes = [produto.plataforma, produto.versao, produto.modelo]
+      .filter(Boolean)
+      .join(" / ");
+
+    const nome = detalhes ? `${produto.nome} (${detalhes})` : produto.nome;
+    const totalItem = qtd * produto.preco;
+
+    return `• ${qtd} × ${nome} — ${formatarReais(totalItem)}`;
+  });
+
+  const linhas = [
+    "Olá! Gostaria de finalizar meu pedido pelo WhatsApp. Seguem os itens que selecionei no site.",
+    "",
+    "*Itens do carrinho*",
+    ...lista,
+    "",
+    `*Subtotal dos produtos* — ${formatarReais(total)}`,
+  ];
+
+  if (numeroPedido) {
+    linhas.push(`*Pedido nº ${numeroPedido}*`);
+  }
+
+  const texto = linhas.join("\n");
   return `https://wa.me/${process.env.WHATSAPP_NUMERO}?text=${encodeURIComponent(texto)}`;
 }
 

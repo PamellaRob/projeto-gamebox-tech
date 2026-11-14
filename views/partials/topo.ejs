@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= titulo === "GameBox Tech" ? titulo : titulo + " · GameBox Tech" %></title>
+  <link rel="icon" type="image/png" href="/img/favicon-64.png">
+  <link rel="apple-touch-icon" href="/img/favicon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="logo" href="/">
+        <img class="logo-img" src="/img/logo-mark-02.png" alt="" width="40" height="40">
+        <span class="logo-text">GameBox <b>Tech</b></span>
+      </a>
+
+      <nav>
+        <a class="nav-link" href="/produtos">Produtos</a>
+        <a class="nav-link" href="/produtos?categoria=jogos">Jogos</a>
+        <a class="nav-link" href="/produtos?categoria=eletronicos">Eletrônicos</a>
+      </nav>
+
+      <form class="search" method="GET" action="/produtos" role="search">
+        <svg class="ico" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M20 20l-3.5-3.5"></path>
+        </svg>
+        <input type="search" name="q" placeholder="Buscar produto..."
+               aria-label="Buscar produto" value="<%= (locals.filtros && locals.filtros.q) || '' %>">
+      </form>
+
+      <div class="cart-preview-wrap">
+        <a class="cart-link" href="/carrinho"
+           aria-label="Carrinho, <%= qtdCarrinho %> <%= qtdCarrinho === 1 ? 'item' : 'itens' %>">
+          <svg class="ico" width="20" height="20" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2.5 3.5h3l2.6 11.7a1.5 1.5 0 0 0 1.5 1.2h9.2"></path>
+            <path d="M6.2 6.5h15.3l-1.8 6.8H7.7"></path>
+            <circle cx="9.5" cy="20" r="1.2"></circle>
+            <circle cx="18.5" cy="20" r="1.2"></circle>
+          </svg>
+          <span class="cart-label">Carrinho</span>
+          <span class="badge"><%= qtdCarrinho %></span>
+        </a>
+
+        <% if (Array.isArray(locals.itensCarrinho)) { %>
+          <div class="cart-preview">
+            <h2 class="cart-preview-title">Meu carrinho</h2>
+
+            <% if (itensCarrinho.length === 0) { %>
+              <p>Seu carrinho está vazio.</p>
+            <% } else { %>
+              <ul class="cart-preview-list">
+                <% itensCarrinho.forEach(({ qtd, produto, subtotal }) => { %>
+                  <li>
+  <div class="cart-preview-product">
+    <img class="cart-preview-image" src="<%= produto.imagem %>" alt="">
+    <span><%= qtd %> × <%= produto.nome %></span>
+  </div>
+  <span class="cart-preview-price"><%= formatarReais(subtotal) %></span>
+</li>
+                <% }); %>
+              </ul>
+
+              <div class="cart-preview-subtotal">
+                <strong>Subtotal</strong>
+                <strong><%= formatarReais(subtotalCarrinho) %></strong>
+              </div>
+            <% } %>
+
+            <a href="/carrinho">Ver carrinho</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </header>
+  <main class="container">

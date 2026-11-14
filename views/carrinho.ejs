@@ -1,50 +1,61 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title><%= titulo %></title>
-</head>
-<body>
-  <h1>Meu carrinho</h1>
-  <p><a href="/">← Continuar comprando</a></p>
+<%- include('partials/topo') %>
 
-  <% if (itens.length === 0) { %>
-    <p>Seu carrinho está vazio.</p>
-  <% } else { %>
-    <table border="1" cellpadding="8">
+<h1>Meu carrinho</h1>
+<p><a class="back" href="/produtos">← Continuar comprando</a></p>
+
+<% if (itens.length === 0) { %>
+  <p class="empty">Seu carrinho está vazio.</p>
+<% } else { %>
+  <div class="table-wrap">
+    <table class="data">
       <tr>
-        <th>Produto</th><th>Preço</th><th>Qtd</th><th>Subtotal</th><th></th>
+        <th>Produto</th><th>Preço</th><th>Quantidade</th><th>Subtotal</th><th></th>
       </tr>
       <% itens.forEach(({ produto, qtd, subtotal }) => { %>
         <tr>
-          <td><%= produto.nome %></td>
+          <td>
+            <div class="cell-product">
+              <img class="thumb" src="<%= produto.imagem %>" alt="<%= produto.nome %>">
+              <a href="/produto/<%= produto._id %>"><%= produto.nome %></a>
+            </div>
+          </td>
           <td><%= brl(produto.preco) %></td>
           <td>
-            <form method="POST" action="/carrinho/diminuir/<%= produto._id %>" style="display:inline">
-              <button type="submit">-</button>
-            </form>
-            <%= qtd %>
-            <form method="POST" action="/carrinho/adicionar/<%= produto._id %>" style="display:inline">
-              <button type="submit" <%= qtd >= produto.estoque ? "disabled" : "" %>>+</button>
-            </form>
+            <div class="qty">
+              <form class="inline" method="POST" action="/carrinho/diminuir/<%= produto._id %>">
+                <button type="submit" class="btn btn-ghost btn-sm">−</button>
+              </form>
+              <strong><%= qtd %></strong>
+              <form class="inline" method="POST" action="/carrinho/adicionar/<%= produto._id %>">
+                <button type="submit" class="btn btn-ghost btn-sm" <%= qtd >= produto.estoque ? "disabled" : "" %>>+</button>
+              </form>
+            </div>
           </td>
           <td><%= brl(subtotal) %></td>
           <td>
-            <form method="POST" action="/carrinho/remover/<%= produto._id %>">
-              <button type="submit">Remover</button>
+            <form class="inline" method="POST" action="/carrinho/remover/<%= produto._id %>">
+              <button type="submit" class="btn btn-danger btn-sm">Remover</button>
             </form>
           </td>
         </tr>
       <% }) %>
     </table>
+  </div>
 
-    <h2>Total: <%= brl(total) %></h2>
+  <div class="summary">
+    <div>
+      <div style="color: var(--muted);">Total do pedido</div>
+      <div class="total"><%= brl(total) %></div>
+    </div>
 
     <form method="POST" action="/carrinho/finalizar">
-        <label>Seu nome (opcional)</label><br>
-        <input type="text" name="nome" maxlength="80"><br><br>
-        <button type="submit">Comprar pelo WhatsApp</button>
+      <div class="field" style="margin: 0;">
+        <label for="nome">Seu nome (opcional)</label>
+        <input type="text" id="nome" name="nome" maxlength="80">
+      </div>
+      <button type="submit" class="btn btn-whatsapp">Comprar pelo WhatsApp</button>
     </form>
-  <% } %>
-</body>
-</html>
+  </div>
+<% } %>
+
+<%- include('partials/rodape') %>

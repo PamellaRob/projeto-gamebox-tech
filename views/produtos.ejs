@@ -1,0 +1,71 @@
+<%- include('partials/topo') %>
+
+<div class="section-head">
+  <span class="eyebrow">Catálogo</span>
+  <h1>Produtos</h1>
+</div>
+
+<form method="GET" action="/produtos" class="filters">
+  <input type="hidden" name="q" value="<%= filtros.q %>">
+
+  <select name="categoria" aria-label="Categoria">
+    <option value="">Todas as categorias</option>
+    <option value="jogos" <%= filtros.categoria === "jogos" ? "selected" : "" %>>Jogos</option>
+    <option value="eletronicos" <%= filtros.categoria === "eletronicos" ? "selected" : "" %>>Eletrônicos</option>
+  </select>
+
+  <% if (plataformas.length > 0) { %>
+    <select name="plataforma" aria-label="Plataforma">
+      <option value="">Todas as plataformas</option>
+      <% plataformas.forEach((pl) => { %>
+        <option value="<%= pl %>" <%= filtros.plataforma === pl ? "selected" : "" %>><%= pl %></option>
+      <% }) %>
+    </select>
+  <% } %>
+
+  <select name="ordem" aria-label="Ordenar por">
+    <option value="recentes" <%= filtros.ordem === "recentes" ? "selected" : "" %>>Mais recentes</option>
+    <option value="menor" <%= filtros.ordem === "menor" ? "selected" : "" %>>Menor preço</option>
+    <option value="maior" <%= filtros.ordem === "maior" ? "selected" : "" %>>Maior preço</option>
+    <option value="nome" <%= filtros.ordem === "nome" ? "selected" : "" %>>Nome (A-Z)</option>
+  </select>
+
+  <button type="submit" class="btn">Filtrar</button>
+  <% if (temFiltro) { %><a href="/produtos" class="btn btn-ghost">Limpar filtros</a><% } %>
+</form>
+
+<p class="result-count">
+  <strong><%= total %></strong> produto<%= total === 1 ? "" : "s" %> encontrado<%= total === 1 ? "" : "s" %><% if (filtros.q) { %> para “<%= filtros.q %>”<% } %><% if (totalPaginas > 1) { %> &middot; página <%= pagina %> de <%= totalPaginas %><% } %>
+</p>
+
+<% if (produtos.length === 0) { %>
+  <p class="empty"><%= temFiltro ? "Nenhum produto encontrado com esses filtros." : "Nenhum produto cadastrado ainda." %></p>
+<% } %>
+
+<div class="grid">
+  <% produtos.forEach((p) => { %>
+    <%- include('partials/card', { p }) %>
+  <% }) %>
+</div>
+
+<% if (totalPaginas > 1) { %>
+  <nav class="pager" aria-label="Paginação">
+    <% if (pagina > 1) { %><a href="<%= linkPagina(pagina - 1) %>">Anterior</a><% } %>
+
+    <% for (let n = 1; n <= totalPaginas; n++) { %>
+      <% if (n === 1 || n === totalPaginas || Math.abs(n - pagina) <= 1) { %>
+        <% if (n === pagina) { %>
+          <span class="current" aria-current="page"><%= n %></span>
+        <% } else { %>
+          <a href="<%= linkPagina(n) %>"><%= n %></a>
+        <% } %>
+      <% } else if (Math.abs(n - pagina) === 2) { %>
+        <span class="dots">&hellip;</span>
+      <% } %>
+    <% } %>
+
+    <% if (pagina < totalPaginas) { %><a href="<%= linkPagina(pagina + 1) %>">Próxima</a><% } %>
+  </nav>
+<% } %>
+
+<%- include('partials/rodape') %>
