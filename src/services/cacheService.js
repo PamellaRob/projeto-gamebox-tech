@@ -3,6 +3,7 @@ const { getRedis } = require("../config/redis");
 const CHAVE_CATALOGO = "catalogo:produtos";
 const TTL_CATALOGO = 60; // segundos
 const MAX_VISTOS = 5;
+const CHAVE_RANKING = "ranking:visualizacoes";
 
 // ----- Cache do catálogo -----
 
@@ -60,10 +61,64 @@ async function listarVistos(visitanteId) {
   }
 }
 
+// ----- Ranking de mais vistos (sorted set) -----
+
+async function registrarVisualizacao(visitanteId, produtoId) {
+  try {
+    const redis = await getRedis();
+    // Conta só uma vez por visitante a cada hora (NX = só grava se ainda não existir)
+    const primeiraVez = await redis.set(`contou:${visitanteId}:${produtoId}`, "1", {
+      NX: true,
+      EX: 60 * 60,
+    });
+    if (primeiraVez) {
+      await redis.zIncrBy(CHAVE_RANKING, 1, produtoId);
+    }
+  } catch (err) {
+    console.error("Cache indisponível (ranking):", err.message);
+  }
+}
+
+async function listarMaisVistos(limite = 4) {
+  try {
+    const redis = await getRedis();
+    const itens = await redis.zRangeWithScores(CHAVE_RANKING, 0, limite - 1, { REV: true });
+    return itens.map((i) => ({ id: i.value, visualizacoes: i.score }));
+  } catch (err) {
+    console.error("Cache indisponível (ranking):", err.message);
+    return [];
+  }
+}
+
+// Devolve { idDoProduto: visualizacoes } para todos os produtos do ranking
+async function obterVisualizacoes() {
+  try {
+    const redis = await getRedis();
+    const itens = await redis.zRangeWithScores(CHAVE_RANKING, 0, -1);
+    return Object.fromEntries(itens.map((i) => [i.value, i.score]));
+  } catch (err) {
+    console.error("Cache indisponível (ranking):", err.message);
+    return {};
+  }
+}
+
+async function removerDoRanking(produtoId) {
+  try {
+    const redis = await getRedis();
+    await redis.zRem(CHAVE_RANKING, String(produtoId));
+  } catch (err) {
+    console.error("Cache indisponível (ranking):", err.message);
+  }
+}
+
 module.exports = {
   lerCatalogo,
   salvarCatalogo,
   limparCatalogo,
   registrarVisto,
   listarVistos,
+  registrarVisualizacao,
+  listarMaisVistos,
+  obterVisualizacoes,
+  removerDoRanking,
 };

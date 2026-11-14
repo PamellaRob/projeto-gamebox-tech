@@ -18,7 +18,7 @@
   <% } else { %>
     <table border="1" cellpadding="8">
       <tr>
-        <th>Imagem</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Ações</th>
+        <th>Imagem</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Visualizações</th><th>Ações</th>
       </tr>
       <% produtos.forEach((p) => { %>
         <tr>
@@ -27,6 +27,7 @@
           <td><%= p.categoria %></td>
           <td><%= p.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></td>
           <td><%= p.estoque %></td>
+          <td><%= visualizacoes[String(p._id)] || 0 %></td>
           <td>
             <a href="/admin/produtos/<%= p._id %>/editar">Editar</a>
             <form method="POST" action="/admin/produtos/<%= p._id %>/excluir"

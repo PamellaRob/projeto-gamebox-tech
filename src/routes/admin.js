@@ -3,6 +3,7 @@ const supabase = require("../config/supabase");
 const requireAdmin = require("../middleware/auth");
 const produtoService = require("../services/produtoService");
 const pedidoService = require("../services/pedidoService");
+const cache = require("../services/cacheService");
 
 const router = express.Router();
 
@@ -99,7 +100,8 @@ router.get("/", requireAdmin, (req, res) => {
 // Lista (lê direto do MongoDB, sem cache: o admin precisa ver o dado real)
 router.get("/produtos", requireAdmin, async (req, res) => {
   const produtos = await produtoService.listar();
-  res.render("admin/produtos", { produtos, msg: req.query.msg || null });
+  const visualizacoes = await cache.obterVisualizacoes();
+  res.render("admin/produtos", { produtos, visualizacoes, msg: req.query.msg || null });
 });
 
 router.get("/produtos/novo", requireAdmin, (req, res) => {

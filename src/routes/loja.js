@@ -9,7 +9,6 @@ const router = express.Router();
 // ----- Catálogo e produto -----
 
 router.get("/", async (req, res) => {
-  // Lê os filtros da URL, garantindo que sejam textos simples
   const texto = (valor) => (typeof valor === "string" ? valor.trim() : "");
   const filtros = {
     q: texto(req.query.q).slice(0, 60),
@@ -23,20 +22,32 @@ router.get("/", async (req, res) => {
 
   let produtos;
   if (temFiltro) {
-    console.log("Busca filtrada vinda do MongoDB");
+    console.log("🔎 Busca filtrada vinda do MongoDB");
     produtos = await produtoService.listarFiltrado(filtros);
   } else {
-    produtos = await produtoService.listarComCache(); // catálogo completo usa o Redis
+    produtos = await produtoService.listarComCache();
   }
 
   const plataformas = await produtoService.listarPlataformas();
   const idsVistos = await cache.listarVistos(req.sessionID);
   const vistos = await produtoService.buscarPorIds(idsVistos);
 
+  // Ranking: o Redis dá os ids e as pontuações; o Mongo dá os dados dos produtos
+  let maisVistos = [];
+  if (!temFiltro) {
+    const ranking = await cache.listarMaisVistos(4);
+    const docs = await produtoService.buscarPorIds(ranking.map((r) => r.id));
+    maisVistos = docs.map((d) => ({
+      ...d,
+      visualizacoes: ranking.find((r) => r.id === String(d._id)).visualizacoes,
+    }));
+  }
+
   res.render("catalogo", {
     titulo: "GameBox Tech",
     produtos,
     vistos,
+    maisVistos,
     filtros,
     plataformas,
     temFiltro: Boolean(temFiltro),
@@ -51,6 +62,7 @@ router.get("/produto/:id", async (req, res) => {
 
   req.session.visitante = true;
   await cache.registrarVisto(req.sessionID, String(produto._id));
+  await cache.registrarVisualizacao(req.sessionID, String(produto._id));
 
   res.render("produto", { titulo: produto.nome, produto });
 });

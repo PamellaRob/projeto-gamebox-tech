@@ -36,7 +36,20 @@
     <button type="submit">Filtrar</button>
     <% if (temFiltro) { %><a href="/">Limpar filtros</a><% } %>
   </form>
-
+  <% if (maisVistos.length > 0) { %>
+    <h2>Mais vistos</h2>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <% maisVistos.forEach((m, i) => { %>
+        <a href="/produto/<%= m._id %>" style="text-align: center; width: 110px; font-size: 13px;">
+            <strong><%= i + 1 %>º</strong><br>
+            <img src="<%= m.imagem %>" alt="<%= m.nome %>" width="80"><br>
+            <%= m.nome %><br>
+            <small><%= m.visualizacoes %> <%= m.visualizacoes === 1 ? "visualização" : "visualizações" %></small>
+        </a>
+        <% }) %>
+    </div>
+    <hr>
+  <% } %>
   <% if (vistos.length > 0 && !temFiltro) { %>
     <h2>Vistos recentemente</h2>
     <div style="display: flex; gap: 12px; flex-wrap: wrap;">

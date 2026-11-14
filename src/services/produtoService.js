@@ -72,6 +72,7 @@ async function excluir(id) {
   const produtos = await colecao();
   const resultado = await produtos.deleteOne({ _id: new ObjectId(id) });
   await cache.limparCatalogo();
+  await cache.removerDoRanking(id);
   return resultado.deletedCount > 0;
 }
 
