@@ -1,3 +1,5 @@
+// Serviço de produtos (MongoDB). Cada produto é um documento; as características
+// variam por produto e ficam no campo "atributos"
 const { ObjectId } = require("mongodb");
 const { getDb } = require("../config/mongo");
 const cache = require("./cacheService");
@@ -13,6 +15,7 @@ const ORDENACOES = {
   nome: { nome: 1, _id: 1 },
 };
 
+// A conexão com o MongoDB é aberta uma vez e reaproveitada
 async function colecao() {
   const db = await getDb();
   return db.collection("produtos");
@@ -20,6 +23,7 @@ async function colecao() {
 
 // ----- Cadastro, edição e exclusão -----
 
+// Sempre que o catálogo muda, o cache da vitrine é apagado para não mostrar dados velhos
 async function criar(produto) {
   const produtos = await colecao();
   const resultado = await produtos.insertOne({
@@ -83,6 +87,7 @@ async function buscarPorId(id) {
   return produtos.findOne({ _id: new ObjectId(id) });
 }
 
+// Uma única consulta para vários produtos (carrinho, vistos e ranking)
 async function buscarPorIds(ids) {
   const validos = ids.filter((id) => ObjectId.isValid(id));
   if (validos.length === 0) return [];
@@ -105,6 +110,7 @@ function escaparRegex(texto) {
   return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Monta a consulta do MongoDB com os filtros escolhidos na tela
 function montarFiltro({ q, categoria, plataforma }) {
   const filtro = {};
 
@@ -129,6 +135,8 @@ function montarFiltro({ q, categoria, plataforma }) {
 }
 
 // Devolve uma página de resultados e os totais para montar a paginação
+// Paginação: countDocuments conta o total, skip pula as páginas anteriores e limit
+// traz só a página atual
 async function listarFiltrado(filtros, { pagina = 1, porPagina = 12 } = {}) {
   const filtro = montarFiltro(filtros);
   const produtos = await colecao();

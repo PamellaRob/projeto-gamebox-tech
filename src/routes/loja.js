@@ -4,8 +4,11 @@ const carrinhoService = require("../services/carrinhoService");
 const pedidoService = require("../services/pedidoService");
 const cache = require("../services/cacheService");
 
+// Rotas públicas da loja: home, lista de produtos, produto, carrinho e compra
 const router = express.Router();
 
+// Middleware: calcula o carrinho antes da tela abrir e deixa os valores
+// prontos para o topo da página (contador de itens)
 async function carregarPreviaCarrinho(req, res, next) {
   try {
     const { itens, total } = await carrinhoService.detalhar(req.session);
@@ -21,10 +24,12 @@ async function carregarPreviaCarrinho(req, res, next) {
   }
 }
 
+// Quantos produtos aparecem em cada página da lista completa
 const POR_PAGINA = 12; // produtos por página na lista completa
 
 // ----- Funções auxiliares -----
 
+// Garante que o valor veio como texto simples (a URL pode trazer listas ou objetos)
 const texto = (valor) => (typeof valor === "string" ? valor.trim() : "");
 
 // Lê os filtros da URL, garantindo que sejam textos simples
@@ -39,9 +44,11 @@ function lerFiltros(query) {
 
 // ----- Home: só uma vitrine, sem o catálogo inteiro -----
 
+// Home: vitrine (vem do Redis quando possível), vistos recentemente e mais vistos
 router.get("/", carregarPreviaCarrinho, async (req, res) => {
   const produtos = await produtoService.listarVitrine();
 
+  // Redis guarda só os ids; o MongoDB devolve os dados completos dos produtos
   const idsVistos = await cache.listarVistos(req.sessionID);
   const vistos = await produtoService.buscarPorIds(idsVistos);
 
@@ -58,6 +65,7 @@ router.get("/", carregarPreviaCarrinho, async (req, res) => {
 
 // ----- Lista completa: busca, filtros e paginação -----
 
+// Lista completa: a busca, os filtros e a paginação são feitos pelo MongoDB
 router.get("/produtos", carregarPreviaCarrinho, async (req, res) => {
   const filtros = lerFiltros(req.query);
   const pagina = parseInt(req.query.pagina, 10) || 1;
@@ -74,6 +82,7 @@ router.get("/produtos", carregarPreviaCarrinho, async (req, res) => {
   const plataformas = await produtoService.listarPlataformas();
 
   // Monta o link de cada página mantendo os filtros escolhidos
+  // Função enviada para a tela, que monta os links da paginação sem perder os filtros
   const linkPagina = (n) => {
     const params = new URLSearchParams();
     if (filtros.q) params.set("q", filtros.q);
@@ -97,6 +106,7 @@ router.get("/produtos", carregarPreviaCarrinho, async (req, res) => {
 
 // ----- Produto -----
 
+// Página de um produto. Cada visita atualiza o "vistos recentemente" e o ranking no Redis
 router.get("/produto/:id", carregarPreviaCarrinho, async (req, res) => {
   const produto = await produtoService.buscarPorId(req.params.id);
   if (!produto) {
@@ -112,6 +122,8 @@ router.get("/produto/:id", carregarPreviaCarrinho, async (req, res) => {
 
 // ----- Carrinho -----
 
+// O carrinho fica na sessão do visitante: só guarda o id e a quantidade.
+// O preço sempre é lido do MongoDB, nunca do navegador
 router.get("/carrinho", carregarPreviaCarrinho, (req, res) => {
   const { itensCarrinho, subtotalCarrinho, formatarReais } = res.locals;
 
@@ -123,6 +135,7 @@ router.get("/carrinho", carregarPreviaCarrinho, (req, res) => {
   });
 });
 
+// Ações do carrinho usam POST porque alteram dados (GET só para consultar)
 router.post("/carrinho/adicionar/:id", async (req, res) => {
   await carrinhoService.adicionar(req.session, req.params.id);
   res.redirect(req.get("Referer") || "/carrinho");

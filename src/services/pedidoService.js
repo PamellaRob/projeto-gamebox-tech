@@ -1,7 +1,12 @@
+// Serviço de pedidos (Supabase). Usa a chave de serviço, que só existe no servidor:
+// as tabelas têm RLS ligado e nenhuma política, então o navegador não acessa direto
 const db = require("../config/supabaseAdmin");
 
+// Status possíveis de um pedido (o banco só recebe valores desta lista)
 const STATUS = ["novo", "confirmado", "entregue", "cancelado"];
 
+// Grava o pedido e os itens em duas etapas. Não é uma transação: se a segunda falhar,
+// o pedido é apagado manualmente (limitação conhecida do projeto)
 async function criar({ itens, total, clienteNome }) {
   // 1) cria o pedido
   const { data: pedido, error } = await db
@@ -29,6 +34,7 @@ async function criar({ itens, total, clienteNome }) {
   return pedido;
 }
 
+// Pedidos do mais novo para o mais antigo
 async function listar() {
   const { data, error } = await db
     .from("pedidos")
@@ -38,6 +44,7 @@ async function listar() {
   return data;
 }
 
+// Aceita só números, para não consultar o banco com texto inválido
 async function buscarPorId(id) {
   if (!/^\d+$/.test(String(id))) return null;
 

@@ -1,3 +1,9 @@
+// Serviço do Redis. Todas as funções têm try/catch: se o Redis cair, o site continua
+// funcionando (só sem cache). Chaves usadas:
+//   catalogo:produtos        vitrine da home (expira em 60 s)
+//   vistos:<visitante>       últimos produtos vistos por cada visitante
+//   ranking:visualizacoes    sorted set com as visualizações de cada produto
+//   contou:<visitante>:<id>  evita contar a mesma visita várias vezes
 const { getRedis } = require("../config/redis");
 
 const CHAVE_CATALOGO = "catalogo:produtos";
@@ -7,6 +13,7 @@ const CHAVE_RANKING = "ranking:visualizacoes";
 
 // ----- Cache do catálogo -----
 
+// Devolve a vitrine guardada, ou null se não houver (cache MISS)
 async function lerCatalogo() {
   try {
     const redis = await getRedis();
@@ -38,6 +45,7 @@ async function limparCatalogo() {
 
 // ----- Vistos recentemente (uma lista por visitante) -----
 
+// Lista por visitante: LREM remove repetido, LPUSH põe no início, LTRIM limita o tamanho
 async function registrarVisto(visitanteId, produtoId) {
   try {
     const redis = await getRedis();
@@ -63,6 +71,7 @@ async function listarVistos(visitanteId) {
 
 // ----- Ranking de mais vistos (sorted set) -----
 
+// ZINCRBY soma 1 na pontuação do produto dentro do sorted set
 async function registrarVisualizacao(visitanteId, produtoId) {
   try {
     const redis = await getRedis();
@@ -79,6 +88,7 @@ async function registrarVisualizacao(visitanteId, produtoId) {
   }
 }
 
+// REV: true devolve da maior pontuação para a menor
 async function listarMaisVistos(limite = 4) {
   try {
     const redis = await getRedis();

@@ -1,3 +1,5 @@
+// Serviço do carrinho. Tudo fica na sessão do visitante, só ids e quantidades.
+// Preço e estoque sempre são lidos do MongoDB na hora de mostrar ou comprar
 const produtoService = require("./produtoService");
 
 // O carrinho é um objeto { idDoProduto: quantidade }
@@ -30,6 +32,7 @@ function remover(session, id) {
 }
 
 // Junta o carrinho com os dados atuais do MongoDB e calcula os totais
+// Dinheiro é calculado em centavos (inteiros) e convertido para reais no final
 async function detalhar(session) {
   const carrinho = obter(session);
   const produtos = await produtoService.buscarPorIds(Object.keys(carrinho));
@@ -68,6 +71,8 @@ function formatarReais(valor) {
     .replace(/\u00A0/g, " "); // troca o espaço "invisível" por um espaço normal
 }
 
+// Monta o link do WhatsApp com a mensagem pronta (wa.me).
+// O número de destino vem do .env (WHATSAPP_NUMERO)
 function montarLinkWhatsApp(itens, total, numeroPedido) {
   const lista = itens.map(({ qtd, produto }) => {
     const detalhes = [produto.plataforma, produto.versao, produto.modelo]
@@ -94,6 +99,7 @@ function montarLinkWhatsApp(itens, total, numeroPedido) {
   }
 
   const texto = linhas.join("\n");
+  // encodeURIComponent deixa acentos, quebras de linha e símbolos seguros na URL
   return `https://wa.me/${process.env.WHATSAPP_NUMERO}?text=${encodeURIComponent(texto)}`;
 }
 

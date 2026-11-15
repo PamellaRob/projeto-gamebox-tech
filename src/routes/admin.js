@@ -6,6 +6,8 @@ const pedidoService = require("../services/pedidoService");
 const cache = require("../services/cacheService");
 const carrinhoService = require("../services/carrinhoService");
 
+// Rotas do painel administrativo (/admin). Quase todas passam pelo "requireAdmin",
+// que só deixa entrar quem fez login no Supabase
 const router = express.Router();
 // Impede o navegador de guardar páginas do admin (botão Voltar após o logout)
 router.use((req, res, next) => {
@@ -13,7 +15,9 @@ router.use((req, res, next) => {
   next();
 });
 
+// Valores fixos usados nas telas e nas validações
 const CATEGORIAS = ["jogos", "eletronicos"];
+// Produtos com 5 unidades ou menos aparecem em "Atenção ao estoque"
 const ESTOQUE_BAIXO = 5;
 const STATUS_PEDIDOS = pedidoService.STATUS;
 
@@ -24,6 +28,7 @@ const ROTULOS_STATUS = {
   cancelado: "Cancelado",
 };
 
+// Datas sempre no horário de Fortaleza/Teresina, mesmo que o servidor esteja em outro fuso
 const formatadorData = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
   timeStyle: "short",
@@ -32,6 +37,7 @@ const formatadorData = new Intl.DateTimeFormat("pt-BR", {
 
 // ----- Funções auxiliares -----
 
+// Formata números como dinheiro (R$ 1.234,56)
 function brl(valor) {
   return carrinhoService.formatarReais(Number(valor));
 }
@@ -47,6 +53,7 @@ function dataHora(valor) {
     : "—";
 }
 
+// Conta quantos pedidos existem em cada status (alimenta a barra do painel)
 function contarPorStatus(pedidos) {
   const porStatus = Object.fromEntries(
     STATUS_PEDIDOS.map((status) => [status, 0])
@@ -61,12 +68,28 @@ function contarPorStatus(pedidos) {
   return porStatus;
 }
 
+// Valida o formulário de produto no servidor. Devolve { erro } ou { produto }
+// Aceita "249,90", "249.90", "1.299,90" e "R$ 1.299,90"
+function lerPreco(valor) {
+  let texto = String(valor ?? "").replace(/R\$|\s/g, "");
+  if (texto === "") return NaN;
+
+  if (texto.includes(",")) {
+    // Com vírgula: os pontos são separadores de milhar e a vírgula é o decimal
+    texto = texto.replace(/\./g, "").replace(",", ".");
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(texto)) {
+    // Só pontos no formato 1.299 ou 1.299.000: também é milhar
+    texto = texto.replace(/\./g, "");
+  }
+  return Number(texto);
+}
+
 function lerFormulario(body) {
   const nome = (body.nome || "").trim();
   const descricao = (body.descricao || "").trim();
   const imagem = (body.imagem || "").trim();
   const categoria = body.categoria;
-  const preco = Number(String(body.preco).replace(",", "."));
+  const preco = lerPreco(body.preco);
   const estoque = Number(body.estoque);
 
   if (!nome || !Number.isFinite(preco) || preco < 0 ||
@@ -78,6 +101,8 @@ function lerFormulario(body) {
     return { erro: "Categoria inválida." };
   }
 
+  // Transforma as linhas "chave: valor" em um objeto. Esses atributos livres
+  // são a vantagem do MongoDB: cada produto pode ter características diferentes
   const atributos = Object.fromEntries(
     (body.caracteristicas || "")
       .split("\n")
@@ -92,12 +117,14 @@ function lerFormulario(body) {
   return { produto: { nome, descricao, preco, imagem, categoria, estoque, atributos } };
 }
 
+// Faz o caminho contrário, para preencher o formulário ao editar
 function atributosParaTexto(atributos) {
   return Object.entries(atributos || {})
     .map(([chave, valor]) => `${chave}: ${valor}`)
     .join("\n");
 }
 
+// Mostra o formulário de produto (cadastro ou edição) com valores padrão
 function renderForm(res, extra = {}) {
   res.render("admin/produto-form", {
     titulo: "Cadastrar novo produto",
@@ -113,6 +140,7 @@ function renderForm(res, extra = {}) {
 
 // ----- Login e logout -----
 
+// ----- Login: a senha é conferida pelo Supabase Auth, nunca guardada aqui -----
 router.get("/login", (req, res) => {
   if (req.session.admin) return res.redirect("/admin");
   res.render("admin/login", { erro: null });
@@ -136,11 +164,13 @@ router.post("/login", async (req, res) => {
   res.redirect("/admin");
 });
 
+// Encerra a sessão e volta para o login
 router.post("/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/admin/login"));
 });
 
 router.use((req, res, next) => {
+  // Deixa estes dados disponíveis em todas as telas do admin (a partir daqui)
   res.locals.admin = req.session.admin;
   res.locals.brl = brl;
   res.locals.statusLista = STATUS_PEDIDOS;
@@ -152,6 +182,8 @@ router.use((req, res, next) => {
 
 // ----- Painel -----
 
+// ----- Painel: junta dados dos três bancos -----
+// Pedidos vêm do Supabase, produtos do MongoDB e visualizações do Redis
 router.get("/", requireAdmin, async (req, res, next) => {
   try {
     const [listaPedidos, produtos, visualizacoes] = await Promise.all([
@@ -160,6 +192,7 @@ router.get("/", requireAdmin, async (req, res, next) => {
       cache.obterVisualizacoes(),
     ]);
 
+    // Dinheiro é somado em centavos (inteiros) para evitar erros de arredondamento
     let faturamentoCentavos = 0;
 
     for (const pedido of listaPedidos) {
@@ -192,6 +225,7 @@ router.get("/", requireAdmin, async (req, res, next) => {
         .sort((a, b) => a.estoque - b.estoque),
     };
 
+    // O Redis informa as visualizações; os dados dos produtos vêm do MongoDB
     const maisVistos = produtos
       .map((produto) => ({
         ...produto,
@@ -217,6 +251,7 @@ router.get("/", requireAdmin, async (req, res, next) => {
 
 // ----- Produtos -----
 
+// ----- Produtos: lista com abas (todos, estoque baixo, esgotados) -----
 router.get("/produtos", requireAdmin, async (req, res, next) => {
   try {
     const filtro = ["baixo", "esgotado"].includes(req.query.filtro)
@@ -254,6 +289,7 @@ router.get("/produtos/novo", requireAdmin, (req, res) => {
   renderForm(res);
 });
 
+// Cadastro: valida, salva no MongoDB e limpa o cache da vitrine (a loja atualiza na hora)
 router.post("/produtos", requireAdmin, async (req, res) => {
   try {
     const { erro, produto } = lerFormulario(req.body);
@@ -289,6 +325,7 @@ router.get("/produtos/:id/editar", requireAdmin, async (req, res, next) => {
   }
 });
 
+// Edição: se a validação falhar, mostra o formulário de novo com o erro
 router.post("/produtos/:id", requireAdmin, async (req, res) => {
   try {
     const existente = await produtoService.buscarPorId(req.params.id);
@@ -316,6 +353,7 @@ router.post("/produtos/:id", requireAdmin, async (req, res) => {
   }
 });
 
+// Exclusão: também remove o produto do ranking de mais vistos no Redis
 router.post("/produtos/:id/excluir", requireAdmin, async (req, res) => {
   try {
     await produtoService.excluir(req.params.id);
@@ -328,6 +366,7 @@ router.post("/produtos/:id/excluir", requireAdmin, async (req, res) => {
 
 // ----- Pedidos -----
 
+// ----- Pedidos (Supabase): lista com filtro por status -----
 router.get("/pedidos", requireAdmin, async (req, res, next) => {
   try {
     const todos = await pedidoService.listar();
@@ -366,6 +405,7 @@ router.get("/pedidos/:id", requireAdmin, async (req, res, next) => {
   }
 });
 
+// Atualiza o status. O servidor só aceita os quatro valores da lista STATUS
 router.post("/pedidos/:id/status", requireAdmin, async (req, res) => {
   try {
     const ok = await pedidoService.atualizarStatus(req.params.id, req.body.status);
