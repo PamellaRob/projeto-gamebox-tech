@@ -28,6 +28,10 @@ app.use("/admin", require("./src/routes/admin"));
 
 app.use("/", require("./src/routes/loja"));
 
+app.use((req, res) => {
+  res.status(404).render("404");
+});
+
 const PORT = process.env.PORT || 3000;
 
 require("./src/services/produtoService").garantirIndices();

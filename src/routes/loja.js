@@ -100,7 +100,7 @@ router.get("/produtos", carregarPreviaCarrinho, async (req, res) => {
 router.get("/produto/:id", carregarPreviaCarrinho, async (req, res) => {
   const produto = await produtoService.buscarPorId(req.params.id);
   if (!produto) {
-    return res.status(404).send("Produto não encontrado.");
+    return res.status(404).render("404");
   }
 
   req.session.visitante = true; // faz a sessão ser salva e o ID do visitante se manter

@@ -7,6 +7,11 @@ const cache = require("../services/cacheService");
 const carrinhoService = require("../services/carrinhoService");
 
 const router = express.Router();
+// Impede o navegador de guardar páginas do admin (botão Voltar após o logout)
+router.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
 
 const CATEGORIAS = ["jogos", "eletronicos"];
 const ESTOQUE_BAIXO = 5;
