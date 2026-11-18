@@ -1,6 +1,8 @@
+<%# Lista de pedidos (Supabase). Recebe do servidor: pedidos, status (filtro atual) e resumo. %>
 <%- include('partials/topo', { titulo: "Pedidos", ativo: "pedidos" }) %>
 
 <div class="adm-toolbar">
+  <%# Abas por status, com a quantidade de pedidos de cada um %>
   <div class="adm-tabs">
     <a class="adm-tab <%= status === '' ? 'is-on' : '' %>" href="/admin/pedidos">Todos<em><%= resumo.total %></em></a>
     <% statusLista.forEach((s) => { %>

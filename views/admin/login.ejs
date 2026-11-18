@@ -1,3 +1,4 @@
+<%# Tela de login do administrador (não usa o topo.ejs, porque tem layout próprio). %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -18,6 +19,7 @@
     <div class="login-box">
 
       <div class="login-art" aria-hidden="true">
+        <%# Ilustração desenhada em SVG direto no código (sem imagem externa) %>
         <svg viewBox="0 0 420 340" width="100%" height="100%" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <!-- chão -->
           <path d="M30 300h360" stroke="#2a1f5c" stroke-width="4"/>
@@ -62,6 +64,8 @@
         </svg>
       </div>
 
+      <%# Formulário: envia e-mail e senha por POST para /admin/login. %>
+      <%# O Supabase Auth confere a senha; ela nunca é guardada no projeto %>
       <form class="login-panel" method="POST" action="/admin/login">
         <div class="login-brand">
           <img src="/img/logo-mark-02.png" alt="" width="44" height="44">
@@ -70,6 +74,7 @@
         <h1>Entrar</h1>
         <p class="login-sub">Sou administrador</p>
 
+        <%# Mensagem de erro do login (só aparece quando o servidor envia "erro") %>
         <% if (locals.erro) { %><div class="adm-alert adm-alert-erro"><%= locals.erro %></div><% } %>
 
         <div class="adm-field">

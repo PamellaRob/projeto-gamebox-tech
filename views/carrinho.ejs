@@ -1,8 +1,11 @@
+<%# Carrinho de compras. Recebe do servidor: itens (produto, qtd, subtotal), total e a função brl (formata em reais). %>
+<%# O preço sempre vem do MongoDB, nunca do navegador. %>
 <%- include('partials/topo') %>
 
 <h1>Meu carrinho</h1>
 <p><a class="back" href="/produtos">← Continuar comprando</a></p>
 
+<%# Carrinho vazio ou com itens %>
 <% if (itens.length === 0) { %>
   <p class="empty">Seu carrinho está vazio.</p>
 <% } else { %>
@@ -21,6 +24,7 @@
           </td>
           <td><%= brl(produto.preco) %></td>
           <td>
+            <%# Botão + desativado quando a quantidade já chegou ao estoque %>
             <div class="qty">
               <form class="inline" method="POST" action="/carrinho/diminuir/<%= produto._id %>">
                 <button type="submit" class="btn btn-ghost btn-sm">−</button>
@@ -42,6 +46,8 @@
     </table>
   </div>
 
+  <%# Total e finalização: o botão envia o pedido ao servidor, que salva no Supabase %>
+  <%# e abre o WhatsApp com a mensagem pronta %>
   <div class="summary">
     <div>
       <div style="color: var(--muted);">Total do pedido</div>

@@ -1,3 +1,4 @@
+<%# Página de um produto. Recebe do servidor: produto (documento do MongoDB). %>
 <%- include('partials/topo') %>
 
 <a class="back" href="/produtos">← Voltar aos produtos</a>
@@ -13,6 +14,8 @@
     <p class="price-lg"><%= produto.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></p>
     <p><%= produto.descricao %></p>
 
+    <%# Características livres: ficam no campo "atributos" do documento no MongoDB, %>
+    <%# por isso cada produto pode ter as suas %>
     <% const atributos = Object.entries(produto.atributos || {}); %>
     <% if (atributos.length > 0) { %>
       <table class="specs">
@@ -22,6 +25,7 @@
       </table>
     <% } %>
 
+    <%# Só permite comprar se houver estoque %>
     <% if (produto.estoque > 0) { %>
       <p class="stock">Em estoque: <%= produto.estoque %> unidade(s)</p>
       <form method="POST" action="/carrinho/adicionar/<%= produto._id %>">

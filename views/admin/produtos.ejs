@@ -1,8 +1,10 @@
+<%# Lista de produtos do painel. Recebe do servidor: produtos, filtro, contagem, visualizacoes (do Redis) e msg. %>
 <%- include('partials/topo', { titulo: "Produtos", ativo: "produtos" }) %>
 
 <% if (locals.msg) { %><div class="adm-alert adm-alert-ok"><%= locals.msg %></div><% } %>
 
 <div class="adm-toolbar">
+  <%# Abas de filtro. "Estoque baixo" usa o limite ESTOQUE_BAIXO definido no servidor %>
   <div class="adm-tabs">
     <a class="adm-tab <%= filtro === 'todos' ? 'is-on' : '' %>" href="/admin/produtos">Todos<em><%= contagem.todos %></em></a>
     <a class="adm-tab <%= filtro === 'baixo' ? 'is-on' : '' %>" href="/admin/produtos?filtro=baixo">Estoque baixo<em><%= contagem.baixo %></em></a>
@@ -49,6 +51,7 @@
               <td>
                 <div class="adm-actions">
                   <a class="abtn abtn-ghost abtn-sm" href="/admin/produtos/<%= p._id %>/editar">Editar</a>
+                  <%# Exclusão por POST, com confirmação no navegador %>
                   <form method="POST" action="/admin/produtos/<%= p._id %>/excluir"
                         onsubmit="return confirm('Excluir este produto?');">
                     <button type="submit" class="abtn abtn-danger abtn-sm">Excluir</button>

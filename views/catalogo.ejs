@@ -1,5 +1,8 @@
+<%# Página inicial da loja. %>
+<%# Recebe do servidor: produtos (vitrine), vistos e maisVistos. %>
 <%- include('partials/topo') %>
 
+<%# Destaque: apresentação da loja e as fotos dos 3 produtos mais recentes %>
 <section class="hero">
   <div>
     <span class="pill">Novidades na loja</span>
@@ -19,6 +22,8 @@
   <% } %>
 </section>
 
+<%# Atalhos compactos: "Mais vistos" vem do ranking no Redis e "Vistos recentemente" vem %>
+<%# da lista de cada visitante (também no Redis). Sem dados, o bloco nem aparece %>
 <% if (maisVistos.length > 0 || vistos.length > 0) { %>
   <div class="quick">
 
@@ -54,6 +59,7 @@
   </div>
 <% } %>
 
+<%# Vitrine: os lançamentos mais recentes (lidos do cache do Redis quando possível) %>
 <section style="margin-top: 36px;">
   <div class="section-head section-head-row">
     <div>
@@ -69,6 +75,7 @@
 
   <div class="grid">
     <% produtos.forEach((p) => { %>
+      <%# Cada produto é desenhado pelo partial card.ejs %>
       <%- include('partials/card', { p }) %>
     <% }) %>
   </div>

@@ -1,3 +1,5 @@
+<%# Topo de todas as telas do painel: abre o <html>, o menu lateral e a área de conteúdo. %>
+<%# Recebe: titulo e ativo ("painel", "produtos" ou "pedidos"). O rodape.ejs fecha as tags. %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -20,6 +22,7 @@
 <body class="adm">
 <div class="adm-shell">
 
+  <%# Menu lateral. O item destacado vem da variável "ativo" enviada por cada tela %>
   <aside class="adm-side">
     <a class="adm-brand" href="/admin">
       <img src="/img/logo-mark-02.png" alt="" width="40" height="40">
@@ -56,6 +59,7 @@
   </aside>
 
   <div class="adm-main">
+    <%# Barra superior: título da página e e-mail do administrador logado %>
     <header class="adm-top">
       <h1 class="adm-page-title"><%= titulo %></h1>
       <div class="adm-user">

@@ -1,3 +1,6 @@
+<%# Lista de produtos com busca, filtros, ordenação e paginação. %>
+<%# Recebe do servidor: produtos (só da página atual), total, pagina, totalPaginas, %>
+<%# filtros, plataformas, temFiltro e a função linkPagina (monta os links mantendo os filtros). %>
 <%- include('partials/topo') %>
 
 <div class="section-head">
@@ -5,7 +8,9 @@
   <h1>Produtos</h1>
 </div>
 
+<%# Filtros enviados por GET: a URL guarda a busca, então dá para compartilhar ou voltar %>
 <form method="GET" action="/produtos" class="filters">
+  <%# Mantém o texto digitado na busca do topo %>
   <input type="hidden" name="q" value="<%= filtros.q %>">
 
   <select name="categoria" aria-label="Categoria">
@@ -14,6 +19,7 @@
     <option value="eletronicos" <%= filtros.categoria === "eletronicos" ? "selected" : "" %>>Eletrônicos</option>
   </select>
 
+  <%# As plataformas vêm do MongoDB (valores existentes nos produtos cadastrados) %>
   <% if (plataformas.length > 0) { %>
     <select name="plataforma" aria-label="Plataforma">
       <option value="">Todas as plataformas</option>
@@ -34,6 +40,7 @@
   <% if (temFiltro) { %><a href="/produtos" class="btn btn-ghost">Limpar filtros</a><% } %>
 </form>
 
+<%# Resumo: total encontrado, texto buscado e página atual %>
 <p class="result-count">
   <strong><%= total %></strong> produto<%= total === 1 ? "" : "s" %> encontrado<%= total === 1 ? "" : "s" %><% if (filtros.q) { %> para “<%= filtros.q %>”<% } %><% if (totalPaginas > 1) { %> &middot; página <%= pagina %> de <%= totalPaginas %><% } %>
 </p>
@@ -49,6 +56,7 @@
 </div>
 
 <% if (totalPaginas > 1) { %>
+  <%# Paginação: mostra a primeira, a última e as vizinhas da página atual, com reticências %>
   <nav class="pager" aria-label="Paginação">
     <% if (pagina > 1) { %><a href="<%= linkPagina(pagina - 1) %>">Anterior</a><% } %>
 

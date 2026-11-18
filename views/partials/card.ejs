@@ -1,7 +1,12 @@
+<%# Cartão de produto, usado na home e na lista de produtos. %>
+<%# Recebe a variável "p" (um produto do MongoDB). %>
+<%# Há quantos dias o produto foi cadastrado %>
 <% const dias = p.criadoEm ? (Date.now() - new Date(p.criadoEm).getTime()) / 86400000 : 999; %>
+<%# Selo do cartão: Esgotado, Últimas unidades (3 ou menos) ou Novo (até 7 dias) %>
 <% const selo = p.estoque <= 0 ? ["flag flag-out", "Esgotado"]
               : p.estoque <= 3 ? ["flag flag-warn", "Últimas unidades"]
               : dias <= 7 ? ["flag", "Novo"] : null; %>
+<%# Cartão: imagem, categoria, nome, descrição, preço e botão de compra %>
 <article class="card">
   <a class="card-img" href="/produto/<%= p._id %>">
     <% if (selo) { %><span class="<%= selo[0] %>"><%= selo[1] %></span><% } %>
@@ -13,6 +18,7 @@
     <p class="desc"><%= p.descricao %></p>
     <p class="price"><%= p.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) %></p>
 
+    <%# O botão de compra só funciona se houver estoque %>
     <% if (p.estoque > 0) { %>
       <form method="POST" action="/carrinho/adicionar/<%= p._id %>">
         <button type="submit" class="btn btn-block">Adicionar ao carrinho</button>

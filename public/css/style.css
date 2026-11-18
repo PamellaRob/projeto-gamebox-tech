@@ -1,4 +1,7 @@
 /* ===== Tema (mude só estas cores para trocar o visual) ===== */
+/* Cores do tema. --accent: verde principal (botões e links) | --violet: roxo de apoio, usado */
+/* com moderação | --bg e --surface: fundo da página e dos cartões | --text e --muted: texto */
+/* principal e secundário | --radius e --shadow: arredondamento e sombra padrão */
 :root {
   --bg: #f6f8f7;
   --bar-bg: rgba(255, 255, 255, 0.92);
@@ -38,6 +41,7 @@ body {
 }
 
 main { flex: 1; padding: 24px 0 0; }
+/* Largura máxima do conteúdo, centralizado */
 .container { width: min(1120px, 100% - 32px); margin-inline: auto; }
 
 a { color: var(--accent); text-decoration: none; }
@@ -45,6 +49,7 @@ a:hover { text-decoration: underline; }
 h1, h2, h3 { line-height: 1.25; }
 
 /* ===== Cabeçalho ===== */
+/* Cabeçalho que acompanha a rolagem da página (sticky) */
 .topbar {
   position: sticky;
   top: 0;
@@ -75,6 +80,7 @@ h1, h2, h3 { line-height: 1.25; }
 .nav-link { color: var(--text); font-weight: 600; font-size: 0.92rem; }
 .nav-link:hover { color: var(--violet); text-decoration: none; }
 
+/* Campo de busca em formato de pílula */
 .search { position: relative; flex: 0 1 300px; margin: 0; }
 .search svg {
   position: absolute;
@@ -111,6 +117,7 @@ h1, h2, h3 { line-height: 1.25; }
   position: relative;
 }
 
+/* Resumo do carrinho: escondido por padrão, aparece ao passar o mouse (veja :hover abaixo) */
 .cart-preview {
   display: none;
   position: absolute;
@@ -185,6 +192,7 @@ h1, h2, h3 { line-height: 1.25; }
 }
 
 .cart-link:hover { text-decoration: none; border-color: var(--violet); }
+/* Bolinha com a quantidade de itens do carrinho */
 .badge {
   background: var(--accent);
   color: #fff;
@@ -194,6 +202,7 @@ h1, h2, h3 { line-height: 1.25; }
   font-weight: 700;
 }
 
+/* Celular: o cabeçalho quebra em linhas e o texto "Carrinho" some, ficando só o ícone */
 @media (max-width: 720px) {
   .topbar-inner { gap: 12px; }
   .topbar nav { display: none; }
@@ -205,6 +214,7 @@ h1, h2, h3 { line-height: 1.25; }
 }
 
 /* ===== Botões ===== */
+/* Botão padrão (verde). As variações abaixo mudam só a cor ou o tamanho */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -233,6 +243,7 @@ h1, h2, h3 { line-height: 1.25; }
 .btn-block { width: 100%; }
 
 /* ===== Campos de formulário ===== */
+/* Campos de formulário com o mesmo visual em todo o site */
 input, select, textarea {
   background: var(--surface);
   color: var(--text);
@@ -276,6 +287,7 @@ textarea { width: 100%; resize: vertical; }
 .result-count { color: var(--muted); margin: 0 0 14px; }
 
 /* ===== Hero ===== */
+/* Faixa de destaque da home: texto à esquerda e fotos à direita */
 .hero {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -322,12 +334,14 @@ textarea { width: 100%; resize: vertical; }
 .shot:nth-child(3) { transform: rotate(6deg); }
 .shot img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
+/* Telas estreitas: a página do produto passa a ter uma coluna só */
 @media (max-width: 760px) {
   .hero { grid-template-columns: 1fr; padding: 28px 22px; }
   .hero-art { display: none; }
 }
 
 /* ===== Filtros ===== */
+/* Barra de filtros da lista de produtos */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -345,6 +359,7 @@ textarea { width: 100%; resize: vertical; }
 .quick-row { display: flex; align-items: center; gap: 12px; }
 .quick-label { flex: 0 0 128px; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
 .chips { flex: 1; min-width: 0; display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 4px; }
+/* Atalho compacto (imagem + nome) usado em "Mais vistos" e "Vistos recentemente" */
 .chip {
   flex: 0 0 auto;
   display: flex;
@@ -378,7 +393,9 @@ textarea { width: 100%; resize: vertical; }
 }
 
 /* ===== Cards de produto ===== */
+/* Grade de produtos: o número de colunas se ajusta à largura da tela */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+/* Cartão de produto */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -401,6 +418,7 @@ textarea { width: 100%; resize: vertical; }
 }
 .card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
+/* Selo sobre a imagem do produto (Novo, Últimas unidades, Esgotado) */
 .flag {
   position: absolute;
   top: 10px;
@@ -429,6 +447,7 @@ textarea { width: 100%; resize: vertical; }
 }
 .card h3 a { color: var(--text); }
 .card h3 a:hover { color: var(--violet); }
+/* Descrição limitada a 2 linhas, para os cartões ficarem do mesmo tamanho */
 .desc {
   color: var(--muted);
   font-size: 0.9rem;
@@ -457,6 +476,7 @@ textarea { width: 100%; resize: vertical; }
 .soldout { color: var(--danger); font-weight: 600; }
 
 /* ===== Paginação ===== */
+/* Botões de paginação */
 .pager { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 30px 0 0; }
 .pager a, .pager span {
   min-width: 38px;
@@ -479,11 +499,13 @@ textarea { width: 100%; resize: vertical; }
 /* ===== Página do produto ===== */
 .back { display: inline-block; margin-bottom: 8px; color: var(--muted); }
 .back:hover { color: var(--violet); }
+/* Página do produto: imagem de um lado e informações do outro */
 .product { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; margin-top: 8px; }
 .product-img { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); aspect-ratio: 1; display: flex; }
 .product-img img { width: 100%; object-fit: contain; padding: 16px; }
 .product h1 { margin: 8px 0; }
 .price-lg { font-size: 2rem; font-weight: 800; margin: 8px 0; }
+/* Tabela de características do produto (vêm do campo "atributos" do MongoDB) */
 .specs { width: 100%; border-collapse: collapse; margin: 16px 0; }
 .specs th, .specs td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
 .specs th { color: var(--muted); font-weight: 500; text-transform: capitalize; width: 40%; }
@@ -491,6 +513,7 @@ textarea { width: 100%; resize: vertical; }
 @media (max-width: 760px) { .product { grid-template-columns: 1fr; } }
 
 /* ===== Tabelas (carrinho e admin) ===== */
+/* Permite rolar a tabela de lado em telas pequenas, sem quebrar a página */
 .table-wrap {
   overflow-x: auto;
   background: var(--surface);
@@ -505,6 +528,7 @@ table.data { width: 100%; border-collapse: collapse; min-width: 560px; }
 .cell-product { display: flex; align-items: center; gap: 12px; }
 .qty { display: inline-flex; align-items: center; gap: 8px; }
 
+/* Área com o total e o botão de finalizar a compra */
 .summary {
   margin-top: 20px;
   background: var(--surface);
@@ -522,10 +546,13 @@ table.data { width: 100%; border-collapse: collapse; min-width: 560px; }
 .empty { text-align: center; color: var(--muted); padding: 48px 0; }
 
 /* ===== Avisos ===== */
+/* Caixas de aviso (sucesso e erro) */
 .alert { padding: 10px 14px; border-radius: 10px; margin: 12px 0; border: 1px solid; }
 .alert-ok { background: rgba(37, 211, 102, 0.12); border-color: rgba(37, 211, 102, 0.4); }
 .alert-erro { background: rgba(217, 63, 76, 0.1); border-color: rgba(217, 63, 76, 0.4); }
 
+/* Estilos do primeiro admin. O painel atual usa o admin.css; de tudo que está aqui, */
+/* na loja só a classe .field (formulário do carrinho) ainda é usada */
 /* ===== Admin (usado na parte 7b) ===== */
 .page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .page-head h1 { margin: 0; }
@@ -540,6 +567,7 @@ table.data { width: 100%; border-collapse: collapse; min-width: 560px; }
 .status { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; background: var(--accent-soft); color: var(--accent); }
 
 /* ===== Rodapé ===== */
+/* Rodapé verde-escuro com um brilho roxo discreto no canto */
 .footer {
   background:
     radial-gradient(120% 160% at 100% 0%, rgba(109, 74, 208, 0.16) 0%, rgba(109, 74, 208, 0) 55%),

@@ -1,8 +1,11 @@
+<%# Topo de todas as páginas da loja: abre o <html>, o cabeçalho e o <main>. %>
+<%# Recebe: titulo e qtdCarrinho (sempre); filtros e itensCarrinho (quando existem). %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%# Título da aba: "GameBox Tech" na home e "Nome da página · GameBox Tech" nas demais %>
   <title><%= titulo === "GameBox Tech" ? titulo : titulo + " · GameBox Tech" %></title>
   <link rel="icon" type="image/png" href="/img/favicon-64.png">
   <link rel="apple-touch-icon" href="/img/favicon-180.png">
@@ -13,6 +16,7 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <%# Cabeçalho: logo, menu, busca e carrinho %>
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="logo" href="/">
@@ -26,6 +30,7 @@
         <a class="nav-link" href="/produtos?categoria=eletronicos">Eletrônicos</a>
       </nav>
 
+      <%# Busca: envia o texto por GET para a lista de produtos (/produtos?q=...) %>
       <form class="search" method="GET" action="/produtos" role="search">
         <svg class="ico" width="16" height="16" viewBox="0 0 24 24"
              fill="none" stroke="currentColor" stroke-width="2"
@@ -37,6 +42,7 @@
                aria-label="Buscar produto" value="<%= (locals.filtros && locals.filtros.q) || '' %>">
       </form>
 
+      <%# Carrinho: o resumo aparece ao passar o mouse (regra :hover no style.css) %>
       <div class="cart-preview-wrap">
         <a class="cart-link" href="/carrinho"
            aria-label="Carrinho, <%= qtdCarrinho %> <%= qtdCarrinho === 1 ? 'item' : 'itens' %>">
@@ -52,6 +58,7 @@
           <span class="badge"><%= qtdCarrinho %></span>
         </a>
 
+        <%# O resumo só aparece nas páginas em que o servidor calculou o carrinho (middleware carregarPreviaCarrinho) %>
         <% if (Array.isArray(locals.itensCarrinho)) { %>
           <div class="cart-preview">
             <h2 class="cart-preview-title">Meu carrinho</h2>
@@ -83,4 +90,5 @@
       </div>
     </div>
   </header>
+  <%# O <main> é fechado no rodape.ejs %>
   <main class="container">

@@ -1,3 +1,4 @@
+<%# Detalhe de um pedido, com seus itens. Recebe do servidor: pedido (com itens_pedido) e msg. %>
 <%- include('partials/topo', { titulo: "Pedido #" + pedido.id, ativo: "pedidos" }) %>
 
 <p><a href="/admin/pedidos">← Voltar para os pedidos</a></p>
@@ -15,6 +16,7 @@
             <tr><th>Produto</th><th class="num">Preço unit.</th><th class="num">Qtd</th><th class="num">Subtotal</th></tr>
           </thead>
           <tbody>
+            <%# Cada item guarda o nome e o preço da hora da compra: mudar o produto depois não altera o pedido %>
             <% pedido.itens_pedido.forEach((i) => { %>
               <tr>
                 <td><strong><%= i.produto_nome %></strong></td>
@@ -49,6 +51,7 @@
     <section class="adm-card">
       <div class="adm-card-head"><h2>Atualizar status</h2></div>
       <div class="adm-card-body">
+        <%# Mudança de status: o servidor só aceita os quatro valores válidos %>
         <form method="POST" action="/admin/pedidos/<%= pedido.id %>/status">
           <div class="adm-field">
             <label for="status">Novo status</label>

@@ -1,5 +1,9 @@
+<%# Painel do administrador. Recebe do servidor: pedidos (total, faturamento, porStatus, recentes), %>
+<%# estoque (total, unidades, valor, atencao), maisVistos e totalVisualizacoes. %>
 <%- include('partials/topo', { titulo: "Painel", ativo: "painel" }) %>
 
+<%# Indicadores. A etiqueta de cada cartão mostra de qual banco vem o dado: %>
+<%# Supabase (pedidos), MongoDB (produtos) e Redis (visualizações) %>
 <div class="adm-kpis">
 
   <div class="adm-card adm-kpi">
@@ -52,6 +56,7 @@
 
 </div>
 
+<%# Duas colunas: pedidos à esquerda; mais vistos e estoque à direita %>
 <div class="adm-cols">
 
   <div class="adm-stack">
@@ -62,6 +67,8 @@
         <% if (pedidos.total === 0) { %>
           <p class="adm-muted" style="margin: 0;">Nenhum pedido registrado ainda.</p>
         <% } else { %>
+          <%# Barra segmentada: a largura de cada trecho é proporcional à quantidade de pedidos %>
+          <%# (o script no fim do arquivo aplica a largura) %>
           <div class="adm-seg" role="img" aria-label="Distribuição dos pedidos por status">
             <% statusLista.forEach((s) => { %>
               <% const qtd = pedidos.porStatus[s] || 0; %>
@@ -122,6 +129,7 @@
       <% if (maisVistos.length === 0) { %>
         <p class="adm-empty">As visualizações dos produtos vão aparecer aqui.</p>
       <% } else { %>
+        <%# Lista com imagem, nome e informação de cada item %>
         <ul class="adm-list">
           <% maisVistos.forEach((m, i) => { %>
             <li>
