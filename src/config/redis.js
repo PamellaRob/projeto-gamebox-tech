@@ -1,4 +1,4 @@
-// conexão com o Redis, aberta uma única vez, como no Mongo
+// Conexão com o Redis, aberta uma única vez, como no Mongo
 const { createClient } = require("redis");
 
 // Dados de acesso ao Redis Cloud vêm do arquivo .env

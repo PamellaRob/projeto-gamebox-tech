@@ -1,7 +1,7 @@
-/* ===== Tema (mude só estas cores para trocar o visual) ===== */
-/* Cores do tema. --accent: verde principal (botões e links) | --violet: roxo de apoio, usado */
-/* com moderação | --bg e --surface: fundo da página e dos cartões | --text e --muted: texto */
-/* principal e secundário | --radius e --shadow: arredondamento e sombra padrão */
+/* ===== Tema ===== */
+/* Cores do tema --accent: verde principal (botões e links) | --violet: roxo de apoio, usado com moderação */
+/* | --bg e --surface: fundo da página e dos cartões | --text e --muted: texto principal e secundário  */
+/* | --radius e --shadow: arredondamento e sombra padrão */
 :root {
   --bg: #f6f8f7;
   --bar-bg: rgba(255, 255, 255, 0.92);
@@ -551,8 +551,8 @@ table.data { width: 100%; border-collapse: collapse; min-width: 560px; }
 .alert-ok { background: rgba(37, 211, 102, 0.12); border-color: rgba(37, 211, 102, 0.4); }
 .alert-erro { background: rgba(217, 63, 76, 0.1); border-color: rgba(217, 63, 76, 0.4); }
 
-/* Estilos do primeiro admin. O painel atual usa o admin.css; de tudo que está aqui, */
-/* na loja só a classe .field (formulário do carrinho) ainda é usada */
+/* Estilos do primeiro admin - O painel atual usa o admin.css; de tudo que está aqui, na loja só a classe 
+  .field (formulário do carrinho) ainda é usada */
 /* ===== Admin (usado na parte 7b) ===== */
 .page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .page-head h1 { margin: 0; }

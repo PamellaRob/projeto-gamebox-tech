@@ -1,6 +1,5 @@
 // Cliente do Supabase com a chave de serviço (service_role). Ela ignora o RLS e tem
-// acesso total, por isso só pode ser usada aqui no servidor, nunca enviada ao navegador
-// nem ao GitHub. É usada para gravar e ler os pedidos
+// acesso total, por isso só pode ser usada aqui no servidor. É usada para gravar e ler os pedidos
 const { createClient } = require("@supabase/supabase-js");
 
 const supabaseAdmin = createClient(

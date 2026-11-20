@@ -7,8 +7,7 @@ const cache = require("../services/cacheService");
 // Rotas públicas da loja: home, lista de produtos, produto, carrinho e compra
 const router = express.Router();
 
-// Middleware: calcula o carrinho antes da tela abrir e deixa os valores
-// prontos para o topo da página (contador de itens)
+// Middleware: calcula o carrinho antes da tela abrir e deixa os valores prontos para o topo da página (contador de itens)
 async function carregarPreviaCarrinho(req, res, next) {
   try {
     const { itens, total } = await carrinhoService.detalhar(req.session);

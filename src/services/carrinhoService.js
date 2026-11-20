@@ -1,4 +1,4 @@
-// Serviço do carrinho. Tudo fica na sessão do visitante, só ids e quantidades.
+// Serviço do carrinho - Tudo fica na sessão do visitante, só ids e quantidades.
 // Preço e estoque sempre são lidos do MongoDB na hora de mostrar ou comprar
 const produtoService = require("./produtoService");
 

@@ -1,5 +1,5 @@
 /* ===== Admin GameBox Tech: mesmo visual da loja ===== */
-/* Cores do painel. --violet: cor principal (botões, item de menu ativo) | --green: apoio */
+/* Cores do painel --violet: cor principal (botões, item de menu ativo) | --green: apoio */
 /* (status positivos) | --amber: alertas | --red: erros | --bg e --panel: fundo e cartões */
 :root {
   --bg: #f7f7fa;
@@ -41,7 +41,7 @@ body.adm {
 /* Estrutura da página: menu lateral fixo de 248px e a área de conteúdo ao lado */
 .adm-shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
 
-/* Menu lateral. Fica parado enquanto o conteúdo rola (sticky) */
+/* Menu lateral - Fica parado enquanto o conteúdo rola (sticky) */
 .adm-side {
   position: sticky;
   top: 0;

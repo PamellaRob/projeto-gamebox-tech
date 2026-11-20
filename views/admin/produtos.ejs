@@ -1,4 +1,4 @@
-<%# Lista de produtos do painel. Recebe do servidor: produtos, filtro, contagem, visualizacoes (do Redis) e msg. %>
+<%# Lista de produtos do painel. Recebe do servidor: produtos, filtro, contagem, visualizacoes (do Redis) e msg %>
 <%- include('partials/topo', { titulo: "Produtos", ativo: "produtos" }) %>
 
 <% if (locals.msg) { %><div class="adm-alert adm-alert-ok"><%= locals.msg %></div><% } %>

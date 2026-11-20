@@ -1,4 +1,3 @@
-// ============================================================
 // GameBox Tech: ponto de entrada do servidor
 //
 // Três bancos de dados, cada um com a sua função:
@@ -30,7 +29,7 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    // httpOnly: o JavaScript da página não lê o cookie.
+    // httpOnly: o JavaScript da página não lê o cookie
     // sameSite "lax": o navegador não envia o cookie em pedidos vindos de outros sites
     cookie: { httpOnly: true, sameSite: "lax", maxAge: 1000 * 60 * 60 * 2 }, // 2 horas
   })
@@ -55,7 +54,7 @@ app.use((req, res) => {
 
 // Qualquer erro não tratado (banco fora do ar, falha inesperada) cai aqui.
 // O detalhe técnico vai só para o terminal; o visitante vê uma página simples.
-// Este tratador precisa ter 4 parâmetros (err, req, res, next) para o Express reconhecê-lo.
+// Este tratador precisa ter 4 parâmetros (err, req, res, next) para o Express reconhecê-lo
 app.use((err, req, res, next) => {
   console.error("Erro no servidor:", err);
   if (res.headersSent) return next(err);

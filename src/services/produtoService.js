@@ -1,5 +1,4 @@
-// Serviço de produtos (MongoDB). Cada produto é um documento; as características
-// variam por produto e ficam no campo "atributos"
+// Serviço de produtos (MongoDB) - Cada produto é um documento; as características variam por produto e ficam no campo "atributos"
 const { ObjectId } = require("mongodb");
 const { getDb } = require("../config/mongo");
 const cache = require("./cacheService");
@@ -135,8 +134,7 @@ function montarFiltro({ q, categoria, plataforma }) {
 }
 
 // Devolve uma página de resultados e os totais para montar a paginação
-// Paginação: countDocuments conta o total, skip pula as páginas anteriores e limit
-// traz só a página atual
+// Paginação: countDocuments conta o total, skip pula as páginas anteriores e limit traz só a página atual
 async function listarFiltrado(filtros, { pagina = 1, porPagina = 12 } = {}) {
   const filtro = montarFiltro(filtros);
   const produtos = await colecao();

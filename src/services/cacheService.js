@@ -1,5 +1,5 @@
-// Serviço do Redis. Todas as funções têm try/catch: se o Redis cair, o site continua
-// funcionando (só sem cache). Chaves usadas:
+// Serviço do Redis - Todas as funções têm try/catch: se o Redis cair, o site continua funcionando (só sem cache)
+// Chaves usadas:
 //   catalogo:produtos        vitrine da home (expira em 60 s)
 //   vistos:<visitante>       últimos produtos vistos por cada visitante
 //   ranking:visualizacoes    sorted set com as visualizações de cada produto

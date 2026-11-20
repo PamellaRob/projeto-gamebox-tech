@@ -1,4 +1,4 @@
-// Serviço de pedidos (Supabase). Usa a chave de serviço, que só existe no servidor:
+// Serviço de pedidos (Supabase) - Usa a chave de serviço, que só existe no servidor:
 // as tabelas têm RLS ligado e nenhuma política, então o navegador não acessa direto
 const db = require("../config/supabaseAdmin");
 

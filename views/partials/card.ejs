@@ -1,5 +1,5 @@
-<%# Cartão de produto, usado na home e na lista de produtos. %>
-<%# Recebe a variável "p" (um produto do MongoDB). %>
+<%# Cartão de produto, usado na home e na lista de produtos %>
+<%# Recebe a variável "p" (um produto do MongoDB) %>
 <%# Há quantos dias o produto foi cadastrado %>
 <% const dias = p.criadoEm ? (Date.now() - new Date(p.criadoEm).getTime()) / 86400000 : 999; %>
 <%# Selo do cartão: Esgotado, Últimas unidades (3 ou menos) ou Novo (até 7 dias) %>
