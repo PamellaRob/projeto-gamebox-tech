@@ -13,8 +13,9 @@
   <img alt="Redis" src="https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white">
 </p>
 
-> Projeto da 3ª Avaliação de **Projeto de Banco de Dados** (Engenharia de Software, UNIFSA).
-> Desenvolvido por Pamella Roberta dos Santos Silva.
+> Projeto da 3ª Avaliação de **Projeto de Banco de Dados** ( Engenharia de Software, UNIFSA)
+
+> Desenvolvido por Pamella Roberta dos Santos Silva
 
 ---
 
