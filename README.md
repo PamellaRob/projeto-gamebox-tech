@@ -202,3 +202,7 @@ banco-de-dados/           script SQL do Supabase
 ## Testes
 
 A lista de testes manuais usada na validação está em [TESTES.md](TESTES.md).
+
+## Vídeo explicativo
+
+🎥 [Clique para acessar o vídeo](https://drive.google.com/file/d/1a6XsupfDvO3-vZIhbHWW0gUFzvtSl9Ha/view?usp=drive_link)
